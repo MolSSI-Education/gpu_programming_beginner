@@ -6,14 +6,32 @@ In this section, we briefly overview the necessary steps for setting up a CUDA d
 environment. At the time of writing this tutorial, **CUDA Toolkit v11.2.0** is the latest 
 official release. Therefore, this version will be the center of our focus throughout the tutorial.
 
-Linux 18.04 LTS (Bionic Beaver) operation system (OS) is used in this tutorial.
-
 ## Linux
+
+Depending on the flavor of the Linux OS on the host machine, NVIDIA offers three
+options for installation of CUDA Toolkit: *RPM*, *Debian* or *Runfile* packages.
+Each of these packages are provided as *Local* or *Network* installers.
+Network installers are ideal for users with high-speed internet connection and
+low local disk storage capacity. Network installers also allow users to
+download only those applications from CUDA Toolkit that they need. Local installers,
+on the other hand, offer a stand-alone large-size installer file that should be downloaded
+to the host machine once. Future installations using this installer file will not require
+any internet connection. Runfiles are Local installers but depending on the type of
+Linux OS on the host machine, RPM and Debian packages can be Local or Network installers.
+
+No matter which one of these options one chooses, the results are more or less the same. However,
+Runfiles offer an independent and cleaner way with more control over the installation
+process. Meanwhile, the installd CUDA Toolkit and its dependent software will not
+automatically update. Debian and RPM packages offer a native and straightforward 
+way to install the CUDA Toolkit. Nevertheless, resolving dependencies, conflicts and broken packages
+will often be an inseparable part of the process. Take a look at
+CUDA Toolkit [documentation](https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html#linux)
+for further information and details on installers.
 
 Before spending time on the installation of the CUDA Toolkit on your Linux machine,
 consider the following set of actions.
 
-> ## Pre-installation Steps
+> ## Pre-installation Steps   {#pre-installation-steps}
 > - Make sure your system has a CUDA-capable graphics processing unit (GPU) device.
 > There are multiple ways to do this task:
 >
@@ -83,8 +101,8 @@ consider the following set of actions.
 >    where unnecessary information from the output are replaced with ellipses. 
 >    The result shows the driver version (455.38), CUDA version (11.2), and the
 >    CUDA-enabled GPU device name (GeForce GTX 1650). Since multiple GPUs might be
->    available on each machine, the applications (such as `nvidia-smi`) usually index them
->    integers starting from zero. 
+>    available on each machine, applications such as `nvidia-smi` often adopt
+>    integer indices, starting from zero, for referencing the GPU devices. 
 >
 > - Because the present tutorial is based on the CUDA C/C++ programming language extensions,
 > check to see if the version of Linux on the host machine is supported by CUDA.
@@ -107,7 +125,7 @@ Once the CUDA Toolkit installer is downloaded, follow the instructions
 your Linux OS platform.
 
 > ## **Known Issues**:
-> It is a pretty common issue that a previously installed version of CUDA conflicts with a
+> It is a very common issue that a previously installed version of CUDA conflicts with a
 > newer version that is going to be installed. In order to resolve the conflict, check the compatibility
 > [matrices](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#handle-uninstallation)
 > and follow the instructions provided thereafter.
@@ -115,6 +133,18 @@ your Linux OS platform.
 
 ## Windows
 
+Basic instructions on using Local or Network installers can be found on CUDA Toolkit's
+[documentation](https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html).
+NVIDIA CUDA Toolkit supports specific version combinations of Microsoft Windows OSs,
+compilers and Microsoft Visual Studio environments. For further details, see
+[here](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/#system-requirements).
+
+> ## WSL Users
+> After following directions in the [Pre-installation Steps](#pre-installation-steps) section, 
+> The *Windows Subsystem for Linux (WSL)* users can refer to CUDA Toolkit
+> [documentation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#wsl-installation)
+> for setting up CUDA Toolkit following the instructions.
+{: .prereq}
 
 ## Mac OS
 

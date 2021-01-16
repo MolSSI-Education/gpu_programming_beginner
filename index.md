@@ -18,7 +18,7 @@ tutorial, specifically, Chapters 1, 2 and 5 for a brief overview of some of the 
 > - Basic familiarity with Bash, C and C++ programming languages is required.
 {: .prereq}
 
-> ## Software/Hardware Specifications
+> ## Software/Hardware Specifications  {#sh-specifications}
 >
 > The following NVIDIA CUDA-enabled GPU devices have been used throughout this tutorial:
 > - Device 0: [GeForce GTX 1650](https://www.nvidia.com/en-us/geforce/graphics-cards/gtx-1650)

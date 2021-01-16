@@ -125,6 +125,7 @@ Once the CUDA Toolkit installer is downloaded, follow the instructions
 your Linux OS platform.
 
 > ## **Known Issues**:
+>
 > It is a very common issue that a previously installed version of CUDA conflicts with a
 > newer version that is going to be installed. In order to resolve the conflict, check the compatibility
 > [matrices](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#handle-uninstallation)
@@ -140,15 +141,17 @@ compilers and Microsoft Visual Studio environments. For further details, see
 [here](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/#system-requirements).
 
 > ## WSL Users
+>
 > After following directions in the [Pre-installation Steps](#pre-installation-steps) section, 
-> The *Windows Subsystem for Linux (WSL)* users can refer to CUDA Toolkit
+> the *Windows Subsystem for Linux (WSL)* users can refer to CUDA Toolkit
 > [documentation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#wsl-installation)
-> for setting up CUDA Toolkit following the instructions.
+> for setting up CUDA Toolkit and following the instructions.
 {: .prereq}
 
 ## Mac OS
 
 > ## **Note**:
+>
 > CUDA Toolkit v10.2.x is the last release that supports Mac OS as a target platform
 > for heterogeneous parallel code development with CUDA. However, NVIDIA still provides
 > support for launching CUDA debugger and profiler application sessions for Mac OS as a host platform.

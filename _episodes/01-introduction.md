@@ -53,21 +53,31 @@ in the code might be able to operate independently. Meanwhile, data parallelism
 delocalizes the data across multiple processing units since some data 
 within each task can be operated upon in parallel by multiple processors.
 
-In order to write a parrallel code, **homogeneous parallel programming**
+In order to write a parralel code, **homogeneous parallel programming**
 is often adopted, in which one or more processing units of the same architecture type
 perform the tasks concurrently. However, the **heterogeneous parallel programming**
 offers a more rigorous alternative where processing units from multiple architecture
 types are responsible for performing parallelization. Here, GPUs perform the
 data-intensive tasks and **central processing units (CPUs)** perform the 
 instruction-intensive operations in order to improve the overall performance
-compared with both sequential and homogeneous parallem programming methods.
+compared with both sequential and homogeneous parallel programming models.
 
 To better understand the concept of heterogeneous parallel programming,
-let us compare the main architectural differences between CPUs and GPUs:
+we should introduce the following new concepts:
 
-[!Figure 1]()
+- **Latency**: The duration of an operation from its beginning to its completion expressed in microseconds (*m*s)
+- **Throughput**: The number of operations processed per unit of time expressed in gigaflops (*G*flops), which
+translates into a billion floating-point operations per second.
+- **Bandwidth**: The processed amount of data per unit of time expressed in megabytes per second (*M*B/s) 
+or gigabytes per second (*G*B/s)
 
+Now, let us compare the main architectural differences between CPUs and GPUs
+in order to be able to see the motivation behind homogeneous parallel computing
+in terms of the concepts we just learned, more clearly:
 
+![Figure 1](../fig/CPU_GPU_comparison.png)
+
+CPUs with heavy-weight threads are designed to reduce the latency
 
 ## CUDA: A Platform for Heterogeneous Parallel Programming
 

@@ -1,18 +1,28 @@
 ---
 title: "Introduction"
-teaching: 0
+teaching: 30
 exercises: 0
 questions:
 - "What is heterogeneous parallel programming? Where did it come from and how did it evolve?"
-- "What are the main differences between CPU and GPU architectures and their corresponding parallel programming paradigms?"
+- "What are the main differences between CPU and GPU architectures and their relation to parallel programming paradigms?"
 - "What is CUDA? Why do I need to know about it?"
 objectives:
-- "First learning objective. (FIXME)"
+- "Understanding the fundamentals of heterogeneous parallel programming"
+- "Learning the basic aspects of GPU architecture and software models for heterogeneous parallel programming"
+- "An initial look into the structure of CUDA as a programming platform and model"
 keypoints:
-- "First key point. Brief Answer to questions. (FIXME)"
+- "Heterogeneous parallel programming"
+- "Basic aspects of GPU architecture"
+- "CUDA as a platform for heterogeneous parallel programming using CPUs and GPUs"
 ---
 
-## Background
+> ## Table of Contents
+> - [1. Background](#1-background)
+> - [2. Parallel Programming Paradigms](#2-parallel-programming-paradigms)
+> - [3. CUDA: A Platform for Heterogeneous Parallel Programming](#3-cuda-a-platform-for-heterogeneous-parallel-programming)
+{: .prereq}
+
+## 1. Background
 
 **High-performance computing (HPC)** is a highly multi-disciplinary area of research
 at the intersection of computing systems, hardware architectures, software platforms
@@ -36,7 +46,7 @@ As detailed in the [Software/Hardware Specifications](#sh-specifications)
 section, we will use two CUDA-enabled GPU devices from the GeForce family 
 with Kepler and Turing microarchitectures throughout this tutorial.
 
-## Parallel Programming Paradigms
+## 2. Parallel Programming Paradigms
 
 A programmer might see a program as a construct consisting of
 `data` and `instructions` interacting with them. In the absence
@@ -53,7 +63,7 @@ in the code might be able to operate independently. Meanwhile, data parallelism
 delocalizes the data across multiple processing units since some data 
 within each task can be operated upon in parallel by multiple processors.
 
-In order to write a parralel code, **homogeneous parallel programming**
+In order to write a parallel code, **homogeneous parallel programming**
 is often adopted, in which one or more processing units of the same architecture type
 perform the tasks concurrently. However, the **heterogeneous parallel programming**
 offers a more rigorous alternative where processing units from multiple architecture
@@ -77,9 +87,35 @@ in terms of the concepts we just learned, more clearly:
 
 ![Figure 1](../fig/CPU_GPU_comparison.png)
 
-CPUs with heavy-weight threads are designed to reduce the latency
+The main memory in both CPU and GPU architectures is implemented using
+**dynamic random access memory (DRAM)**. However, lower-latency memory
+units such as cache have been constructed using 
+**static random access memory (SRAM)**. CPU cores are armed with a large 
+amount of cache space at different levels (L1-L3 and rarely, L4), 
+which allows them to reduce the latency in memory access through benefiting from
+the *principle of locality* and *speculative execution*. By storing the frequently 
+used data in cache and predicting the next instruction through an out-of-order
+execution, CPUs attempt to minimize the latency of data access/storage from the memory,
+in particular at high-clock speed. From L1 to L3, both memory capacity (or its size)
+and the data access latency increase. L1 cache is built on the CPU chip physically 
+closer to the processing units than L2 and L3 cache which are built onto the 
+motherboard or CPU module. Based on the aforementioned architectural details,
+CPUs are best suited for complex logical codes with instruction-intensive dynamical 
+workload and short sequences of computational operations.
 
-## CUDA: A Platform for Heterogeneous Parallel Programming
+Armed with a thousands of transistors on chip, GPUs are designed to hide the latency through 
+*maximizing throughput* by handling large number of concurrenly active threads:
+when one thread is waiting for fetching the data from memory, other active threads can start the
+execution at the same time. NVIDIA calles this type of architecture
+**single instruction multiple thread (SIMT)** which highlights its optimization 
+for data-intensive computational tasks with simple logical control flow.
+
+At this point, we have learned some details about GPU hardware architectures and 
+gained some insights into the motivation behind the heterogeneous parallel programming.
+Let us focus on the software aspect and see how we can improve the performance 
+of our codes by harnessing the power of CPUs and GPUs at the same time.
+
+## 3. CUDA: A Platform for Heterogeneous Parallel Programming
 
 Since its first release in 2007, **compute unified device architecture (CUDA)**
 has become the major standard platform for the **general-purpose
@@ -87,6 +123,19 @@ computation using GPU (GPGPU)**, a term coined by
 [Mark Harris](https://developer.nvidia.com/blog/author/mharris) highlighting
 the non-graphical computational applications performed using GPUs.
 
+CUDA as a heterogeneous parallel programming platform provides the programmer with access
+to the programmable GPU threads through compiler directives, application programming 
+interfaces (APIs), standard programming language extionsions such as C, C++, Python, 
+Fortran *etc.*, and CUDA-accelerated libraries. As a programming model, CUDA exposes 
+both **thread** and **memory hierarchies** which enables user with a great amount of 
+control over GPU threads and memory. We will discuss these concepts in more details in 
+the next few lessons.
+
+CUDA development environment also provides some tools for creating GPU-accelerated
+programs, including: GPU management tools, *NVIDIA Nsight* integrated development 
+environment (IDE), *CUDA-GDB* for debugging via command line interface, 
+visual and command line variants of profiling tools for performance analysis, and 
+*CUDA-MEMCHECK* for memory analysis.
 
 {% include links.md %}
 

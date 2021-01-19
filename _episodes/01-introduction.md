@@ -108,7 +108,8 @@ Armed with a thousands of transistors on chip, GPUs are designed to hide the lat
 when one thread is waiting for fetching the data from memory, other active threads can start the
 execution at the same time. NVIDIA calles this type of architecture
 **single instruction multiple thread (SIMT)** which highlights its optimization 
-for data-intensive computational tasks with simple logical control flow.
+for data-intensive computational tasks with simple logical control flow. A PCI-Express bus
+connects the CPUs and GPUs.
 
 At this point, we have learned some details about GPU hardware architectures and 
 gained some insights into the motivation behind the heterogeneous parallel programming.

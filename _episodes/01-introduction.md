@@ -42,7 +42,7 @@ GPU architectures are often part of the following production line families:
 - **Tesla**: optimized for technical and scientific computing
 - **Jetson**: suitable for artificial intelligence (AI)-driven autonomous machines 
 
-As detailed in the [Software/Hardware Specifications](#sh-specifications)
+As detailed in the [Software/Hardware Specifications]({{ site.baseurl }}{% link index.md %}#sh-specifications)
 section, we will use two CUDA-enabled GPU devices from the GeForce family 
 with Kepler and Turing microarchitectures throughout this tutorial.
 

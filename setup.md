@@ -159,6 +159,6 @@ compilers and Microsoft Visual Studio environments. For further details, see
 > Since the present tutorial is based on the latest
 > version (v11.2.0), the Mac OS will not be the subject of our further consideration
 > through this tutorial.
-{: .callout}
+{: .discussion}
 
 {% include links.md %}

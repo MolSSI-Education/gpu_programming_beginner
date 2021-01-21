@@ -44,7 +44,11 @@ and `helloFromGPU()`. Each function, as the names suggest, prints the "Hello Wor
 from the host or the device. First, open a new file with the name `hello.cu`
 copy the following code into it.
 
-~~~-  "*************************/
+~~~
+#include <stdlib.h>                       /* For status marcos */
+#include <stdio.h>                        /* For printf() function */
+
+/**********************************************/
 
 void helloFromCPU(void) {                 /* This function runs on the host */
     printf("Hello World from CPU!\n");  

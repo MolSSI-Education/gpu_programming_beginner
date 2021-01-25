@@ -22,9 +22,9 @@ tutorial, specifically, Chapters 1, 2 and 5 for a brief overview of some of the 
 >
 > The following NVIDIA CUDA-enabled GPU devices have been used throughout this tutorial:
 > - Device 0: [GeForce GTX 1650](https://www.nvidia.com/en-us/geforce/graphics-cards/gtx-1650)
-> with Turing architecture and Compute Capability = 7.5
+> with Turing architecture (Compute Capability = 7.5)
 > - Device 1: [GeForce GT 740M](https://www.techpowerup.com/gpu-specs/geforce-gt-740m.c2299) 
-> with Kepler architecture and Compute Capability = 3.5
+> with Kepler architecture (Compute Capability = 3.5)
 >
 > Linux 18.04 (Bionic Beaver) OS is the target platform for CUDA Toolkit v11.2.0 on the two host
 > machines armed with devices 0 and 1.

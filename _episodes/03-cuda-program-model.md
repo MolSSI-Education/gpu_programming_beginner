@@ -11,7 +11,7 @@ keypoints:
 ---
 
 - [1. Basics of the Device Memory Management in CUDA](#1-basics-of-the-device-memory-management-in-cuda)
-- [2. Thread Hierarcy in CUDA](#2-thread-hierarcy-in-cuda)
+- [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
 
 Our Hello World example from previous lesson lacks two important aspects of a CUDA
 program that are crucial for programmers in heterogeneous parallel programming within CUDA platform:
@@ -89,12 +89,108 @@ transfer direction is automatically chosen based upon the pointer values `scr` a
 Note that `cudaMemcpyDefault` should only be adopted when [*unified virtual 
 addressing (UVA)*](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiJ9rD787ruAhXkQ98KHVYMAI0QFjAAegQIARAC&url=https%3A%2F%2Fdeveloper.download.nvidia.com%2FCUDA%2Ftraining%2Fcuda_webinars_GPUDirect_uva.pdf&usg=AOvVaw0h8XB32gYKtSmfEwEaFcbQ) is supported.
 
-## 2. Thread Hierarcy in CUDA
+> ## Note:
+> Most kernel launches we consider in this tutorial are *asynchronous* in their behavior in which
+> case the control flow is immediately returned to the host after kernel execution. However,
+> some function calls, such as `cudaMemcpy()`, are *synchronous*-- the host application stops until
+> the function completes its task.
+{: .discussion}
+
+## 2. Thread Hierarchy in CUDA
 
 CUDA exposes a two-level thread hierarchy, consisting of **block of threads** and 
 **grids of blocks**, to the programmer in order to allow for thread organization
-on GPU devices. 
+on GPU devices.
 
-As figure demonstrates, 
+![figure]()
+
+As figure demonstrates, each grid is often constructed from many thread blocks.
+Each block is a group of threads invoked by kernel to perform a specific task
+in parallel. Each thread in a block has its own private local memory space.
+However, threads in a block can cooperate to perform the same task in parallel
+thanks to the shared memory space in the block which makes data visible to all
+threads in the block for the life time of that block. The cooperation between threads
+not only can happen in terms of sharing the data and access to it within the block-local
+shared memory space but also can be realized in the form of block-level thread synchronization. 
+
+Within the aforementioned two-level thread hierarchy, each thread can be identified with
+two coordinates:
+
+- `threadIdx`: which refers to the thread index within each block
+- `blockIdx`: which stands for the block index within each grid
+
+Both `threadIdx` and `blockIdx` identifiers are 
+[built-in structure variables](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#built-in-variables)
+of integer-based vector-type, `uint3`, assigned to each thread by CUDA 
+runtime application. The internal assignment of these variables are driven by kernel 
+execution which makes them accessible to that kernel. Components of the `threadIdx` or `blockIdx`
+structure variables, *i.e.*, `threadIdx.x`, `threadIdx.y`, and `threadIdx.z` as well as 
+`blockIdx.x`, `blockIdx.y`, and `blockIdx.z` allow for a three-dimensional organization of
+blocks and grids in CUDA. The dimensions of grids of blocks and bocks of threads can be
+controlled via the following CUDA built-in variables, respectively
+
+- `blockDim`: which indicates the block of threads' dimension
+- `gridDim`: which refers to the grids of block object dimension
+
+The `blockDim` and `gridDim` variables are structures of `dim3` type with x, y, z fields
+for Cartesian components. 
+
+Let's write a simple kernel that shows how blocks of threads and 
+grids of blocks can be organized and identified in an CUDA program:
+
+```
+#include <cuda_runtime.h>
+#include <stdio.h>
+
+ __global__ void printThreadID() {
+    /* For each thread, the kernel prints
+     * the threadIdx, blockIdx, blockDim,
+     * and gridDim, respectively.
+     */
+    printf("threadIdx:(%d, %d, %d), \
+            blockIdx:(%d, %d, %d), \
+            blockDim:(%d, %d, %d), \
+            gridDim:(%d, %d, %d)\n", \
+            threadIdx.x, threadIdx.y, threadIdx.z, \
+            blockIdx.x, blockIdx.y, blockIdx.z, \
+            blockDim.x, blockDim.y, blockDim.z, \
+            gridDim.x, gridDim.y, gridDim.z);
+
+}
+
+int main(int argc, char **argv)
+{
+    /* Array size */
+    int numArray  = 6;
+
+    /* Number of thread blocks in each grid */
+    int numBlocks = 2;
+
+    /* Organizing grids and blocks */
+    dim3 block(numBlocks);
+    dim3 grid((numArray + block.x - 1) / block.x);
+
+    /* Indicate that the dimensions will be printed from the host */
+    printf("Printing from the host!\n"); fflush(stdout);
+
+    /* Print the grid and block dimensions from the host */
+    printf("[grid.x, grid.y, grid.z]:    [%d, %d, %d]\n", grid.x, grid.y, grid.z);
+    printf("[block.x, block.y, block.z]: [%d, %d, %d]\n\n", block.x, block.y, block.z);
+
+    /* Indicate that the dimensions will be printed from the host */
+    printf("Printing from the device!\n"); fflush(stdout);
+
+    /* Print the grid and block dimensions from the device */
+    printThreadID<<<grid, block>>>();
+
+    /* Performing house-keeping for the device */
+    cudaDeviceReset();
+
+    return(EXIT_SUCCESS);
+}
+```
+{: .language-cuda}
+
+
 
 {% include links.md %}

@@ -10,8 +10,13 @@ keypoints:
 - "Container"
 ---
 
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 - [1. Basics of the Device Memory Management in CUDA](#1-basics-of-the-device-memory-management-in-cuda)
 - [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
+- [3. Summation of Arrays on GPU](#3-summation-of-arrays-on-gpu)
 
 Our Hello World example from previous lesson lacks two important aspects of a CUDA
 program that are crucial for programmers in heterogeneous parallel programming within CUDA platform:
@@ -133,16 +138,15 @@ controlled via the following CUDA built-in variables, respectively
 - `gridDim`: which refers to the grids of block object dimension
 
 The `blockDim` and `gridDim` variables are structures of `dim3` type with x, y, z fields
-for Cartesian components. 
+for Cartesian components.
 
-Let's write a simple kernel that shows how blocks of threads and 
-grids of blocks can be organized and identified in an CUDA program:
+Let's write a simple kernel that shows how blocks of threads and grids of blocks can be organized and identified in a CUDA program:
 
 ```
 #include <cuda_runtime.h>
 #include <stdio.h>
 
- __global__ void printThreadID() {
+__global__ void printThreadID() {
     /* For each thread, the kernel prints
      * the threadIdx, blockIdx, blockDim,
      * and gridDim, respectively.
@@ -190,6 +194,107 @@ int main(int argc, char **argv)
 }
 ```
 {: .language-cuda}
+
+Running this code will generate the following output:
+
+```
+Printing from the host!
+[grid.x, grid.y, grid.z]:    [3, 1, 1]
+[block.x, block.y, block.z]: [2, 1, 1]
+
+Printing from the device!
+threadIdx:(0, 0, 0),             blockIdx:(0, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
+threadIdx:(1, 0, 0),             blockIdx:(0, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
+threadIdx:(0, 0, 0),             blockIdx:(2, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
+threadIdx:(1, 0, 0),             blockIdx:(2, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
+threadIdx:(0, 0, 0),             blockIdx:(1, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
+threadIdx:(1, 0, 0),             blockIdx:(1, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
+```
+{: .output}
+
+Now, let's get back to our code and analyze it step by step
+in order to understand the mechanistic details of thread
+organization in CUDA programming. First, you might have noticed
+that we have included *cuda_runtime.h* header file in addition to *stdio* that
+provides `printf()` functions in **C**. 
+The [CUDA Runtime API](https://docs.nvidia.com/cuda/cuda-runtime-api/index.html) 
+manages the kernel loads, kernel parameter passes and kernel configuration 
+before kernel execution. CUDA Runtime consist of two main parts:
+(i) a **C**-style function interface (*cuda_runtime_api.h*),
+and (ii) a **C++**-style interface (*cuda_runtime.h*) built upon **C**-APIs
+as wrapper extensions for programming convenience.
+As long as our codes are compiled with **nvcc**, it manages the inclusion of CUDA Runtime API headers
+for us. So, you can try even removing the *cuda_runtime.h* header from the code but it still compiles
+without any issues. The structure of the [CUDA Runtime API](https://docs.nvidia.com/cuda/cuda-runtime-api/index.html) 
+is detailed in the CUDA Toolkit [documentation](https://docs.nvidia.com/cuda/index.html).
+
+The next part of our code defines the `printThreadID()` kernel implementation which
+comprises of a single function call to the formatted print function, `printf()`.
+Our code demonstrates that there are two different sets of grid and block identification variables:
+(i) user-defined variables of type `dim3` that are defined on the host
+and visible on the host side, only.
+
+```
+dim3 block(numBlocks);
+dim3 grid((numArray + block.x - 1) / block.x);
+```
+{: .language-cuda}
+
+We previously mentioned that the structure types `dim3` have three fields but in this case,
+only one value has been passed to both block and grid object constructors' argument lists.
+As such, the other two undefined variables are automatically set to 1 and ignored (See the output above). 
+It is important to note that the number of grids in each direction (*i.e.*, x, y, z)
+is dependent on the number of blocks through the following formula:
+
+$$ \text{grids.q} = \frac{(\text{number of elements} + \text{block.q} - 1){\text{block.q}} \qquad \quad \text{where} \qquad q = x, y, z $$
+
+In the next part of our code, we then access the block and grid dimension variables 
+within the main function to print them to the screen from the host.
+
+```
+printf("[grid.x, grid.y, grid.z]:    [%d, %d, %d]\n", grid.x, grid.y, grid.z);
+printf("[block.x, block.y, block.z]: [%d, %d, %d]\n\n", block.x, block.y, block.z);
+```
+{: .language-cuda}
+
+In the next step, the grid and block objects are are passed to the kernel execution
+configuration as arguments:
+
+```
+printThreadID<<<grid, block>>>();
+```
+{: .language-cuda}
+
+The kernel execution triggers the initialization of the built-in thread, block and grid identification
+variables of the type `uint3` by CUDA Runtime which will be visible on the device and therefore accessible
+within the kernel function.
+
+~~~
+__global__ void printThreadID() {
+    /* For each thread, the kernel prints
+     * the threadIdx, blockIdx, blockDim,
+     * and gridDim, respectively.
+     */
+    printf("threadIdx:(%d, %d, %d), \
+            blockIdx:(%d, %d, %d), \
+            blockDim:(%d, %d, %d), \
+            gridDim:(%d, %d, %d)\n", \
+            threadIdx.x, threadIdx.y, threadIdx.z, \
+            blockIdx.x, blockIdx.y, blockIdx.z, \
+            blockDim.x, blockDim.y, blockDim.z, \
+            gridDim.x, gridDim.y, gridDim.z);
+}
+~~~
+{: .language-cuda}
+
+When each active thread runs the kernel, it has access to the pre-initialized identification indices.
+Therefore, the kernel function `printThreadID()` can print the thread identifiers to the screen.
+Note that in order to improve readability, we have used  backslash, '\\',  to split a long function
+argument list in `printf()` function call into multiple lines of code. Finally, we call the
+`cudaDeviceReset()` function to destroy all memory allocations on the device and restart its state within
+the current process.
+
+## 3. Summation of Arrays on GPU
 
 
 

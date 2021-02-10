@@ -17,6 +17,7 @@ keypoints:
 - [1. Basics of the Device Memory Management in CUDA](#1-basics-of-the-device-memory-management-in-cuda)
 - [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
 - [3. Summation of Arrays on GPUs](#3-summation-of-arrays-on-gpus)
+  - [3.1. Header Files and Function Definitions](#31-header-files-and-function-definitions)
 
 Our Hello World example from previous lesson lacks two important aspects of a CUDA
 program that are crucial for programmers in heterogeneous parallel programming within CUDA platform:
@@ -217,7 +218,7 @@ Now, let's get back to our code and analyze it step by step
 in order to understand the mechanistic details of thread
 organization in CUDA programming. First, you might have noticed
 that we have included ***cuda_runtime.h*** header file in addition to 
-***stdio*** and ***stdlib*** that provide access to `printf()` functions
+***stdio.h*** and ***stdlib.h*** that provide access to `printf()` functions
 and status macros in C, respectively.  The 
 [CUDA Runtime API](https://docs.nvidia.com/cuda/cuda-runtime-api/index.html) 
 manages the kernel loads, kernel parameter passes and kernel configuration 
@@ -298,7 +299,7 @@ the current process.
 
 ## 3. Summation of Arrays on GPUs
 
-Copy the following code into an empty text file, rename it to *gpu_vector_Sum.cu* and save it.
+Copy the following code into an empty text file, rename it to *gpu_vector_sum.cu* and save it.
 
 ```
 #include <stdlib.h>
@@ -308,26 +309,41 @@ Copy the following code into an empty text file, rename it to *gpu_vector_Sum.cu
 #include <sys/time.h>
 #include <cuda_runtime.h>
 
+/*************************************************/
 inline double chronometer() {
     struct timezone tzp;
     struct timeval tp;
     int tmp = gettimeofday(&tp, &tzp);
     return ((double)tp.tv_sec + (double)tp.tv_usec * 1.e-6);
 }
+/*-----------------------------------------------*/
+void dataInitializer(float *inputArray, int size) {
+    /* Generating float-type random numbers 
+     * between 0.0 and 1.0
+     */
+    time_t t;
+    srand( (unsigned int) time(&t) );
 
+    for (int i = 0; i < size; i++) {
+        inputArray[i] = ( (float)rand() / (float)(RAND_MAX) ) * 1.0;
+    }
+
+    return;
+}
+/*-----------------------------------------------*/
 void arraySumOnHost(float *A, float *B, float *C, const int size) {
     for (int i = 0; i < size; i++) {
         C[i] = A[i] + B[i];
     }
 }
-
+/*-----------------------------------------------*/
 __global__ void arraySumOnDevice(float *A, float *B, float *C, const int size) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
     if (idx < size) { 
         C[idx] = A[idx] + B[idx];
     }
 }
-
+/*-----------------------------------------------*/
 void arrayEqualityCheck(float *hostPtr, float *devicePtr, const int size) {
     double tolerance = 1.0E-8;
     bool isEqual = true;
@@ -349,21 +365,7 @@ void arrayEqualityCheck(float *hostPtr, float *devicePtr, const int size) {
 
     return;
 }
-
-void dataInitializer(float *inputArray, int size) {
-    /* Generating float-type random numbers 
-     * between 0.0 and 1.0
-     */
-    time_t t;
-    srand( (unsigned int) time(&t) );
-
-    for (int i = 0; i < size; i++) {
-        inputArray[i] = ( (float)rand() / (float)(RAND_MAX) ) * 1.0;
-    }
-
-    return;
-}
-
+/*************************************************/
 int main(int argc, char **argv) {
     printf("Kicking off %s\n\n", argv[0]);
 
@@ -376,7 +378,7 @@ int main(int argc, char **argv) {
     cudaGetDeviceProperties(&deviceProp, deviceIdx);
     printf("GPU device %s with index (%d) is set!\n\n", \
     deviceProp.name, deviceIdx); fflush(stdout);
-
+/*-----------------------------------------------*/
     /* Fixing the vector size to 1 * 2^24 = 16777216 (64 MB) */
     int vecSize = 1 << 24;
     size_t vecSizeInBytes = vecSize * sizeof(float);
@@ -405,7 +407,7 @@ int main(int argc, char **argv) {
     arraySumOnHost(h_A, h_B, hostPtr, vecSize);
     tElapsed = chronometer() - tStart;
     printf("Elapsed time for arraySumOnHost: %f second(s)\n", tElapsed); fflush(stdout);
-
+/*-----------------------------------------------*/
     /* (Global) memory allocation on the device */
     float *d_A, *d_B, *d_C;
     cudaMalloc((float**)&d_A, vecSizeInBytes);
@@ -429,18 +431,18 @@ int main(int argc, char **argv) {
     tElapsed = chronometer() - tStart;
     printf("Elapsed time for arraySumOnDevice <<< %d, %d >>>: %f second(s)\n\n", \
     grid.x, block.x, tElapsed); fflush(stdout);
-
+/*-----------------------------------------------*/
     /* Returning the last error from a runtime call */
     cudaGetLastError() ;
 
     /* Data transfer back from device to host */
     cudaMemcpy(devicePtr, d_C, vecSizeInBytes, cudaMemcpyDeviceToHost);
 
-    /* Check to see if array summations on 
-     * CPU and GPU give the same results 
+    /* Check to see if the array summations on 
+     * CPU and GPU yield the same results 
      */
     arrayEqualityCheck(hostPtr, devicePtr, vecSize);
-
+/*-----------------------------------------------*/
     /* Free the allocated memory on the device */
     cudaFree(d_A);
     cudaFree(d_B);
@@ -457,8 +459,89 @@ int main(int argc, char **argv) {
 ```
 {: .language-cuda}
 
-I agree. This code is both long and ugly. Ignore your feelings for now as there is a reason behind it: In the next lesson, we are going to break this code into multiple files when we talk a little bit about the **nvcc** compiler. For now, let us focus on our code and start from the beginning.
+After saving the code, it can be compiled and run using the following two commands
 
+```
+$ nvcc gpu_vector_sum.cu -o gpu_vector_sum
+$ ./gpu_vector_sum
+```
+{: .language-bash}
+
+with the output similar to the following
+
+```
+Kicking off ./test
+
+GPU device "GeForce GTX 1650" with index "0" is set!
+
+Vector size: 16777216 floats (64 MB)
+
+Elapsed time for dataInitializer: 0.757348 second(s)
+Elapsed time for arraySumOnHost: 0.062009 second(s)
+Elapsed time for arraySumOnDevice <<< 16384, 1024 >>>: 0.001885 second(s)
+
+Arrays are equal.
+```
+{: .output}
+
+A major problem with this code is that it is very long. 
+In the next lesson, we are going to restructure this code by breaking it into multiple files when we talk a little bit about the **nvcc** compiler.
+
+Now, it is time to focus on our code and start analyzing it from the beginning.
+
+### 3.1. Header Files and Function Definitions
+
+Our vector addition code, involves three additional new headers: (i)
+***stdbool.h*** for including the `true` and `false` type definitions,
+(ii) ***time.h*** for including `time_t` type and `time()` function definitions, and (iii) ***sys/time.h*** for adding the `timeval` and
+`timezone` structure definitions.
+
+In the next section of our code, separated by commented star-shaped lines,there are four C/C++ function definitions [`chronometer()`, 
+`dataInitializer()`, `arraySumOnHost()`, and `arrayEqualityCheck()`] 
+and one CUDA kernel, *i.e.*, `arraySumOnDevice()` implementation. 
+
+The `chronometer()` uses `timezone` and `timeval` structures and 
+`gettimeofday()` function -- included by ***sys/time.h***--  to define a utility function that allow us measure the wall-clock time between any two execution points in our code.
+
+> ## Note:
+> The `gettimeofday()` function is supported by GCC compilers and
+> might not work on Windows. For further information, see 
+> [here](https://levelup.gitconnected.com/8-ways-to-measure-execution-time-in-c-c-48634458d0f9) or
+> take a glance at [Advanced Linux Programming Book](https://www.amazon.com/Advanced-Linux-Programming-CodeSourcery-LLC/dp/0735710430) (section 8.7 gettimeofday: Wall-Clock Time).  .
+{: .discussion}
+
+The `dataInitializer()` function accepts pointers to the location of allocated memories for the input arrays (A and B) on the host and size of the arrays. The input arrays are then initialized and filled with float-type random 
+numbers between zero and one.
+
+The `arraySumOnHost()` function, as its name suggests, is responsible for performing an element-by-element summation of the two arrays, A and B, on the host and stores the results into array C. The kernel function 
+`arraySumOnDevice()` works similar to its CPU counterpart, `arraySumOnHost()`
+except in their logistics. Although, `arraySumOnDevice()` kernel is written
+for a single thread specified by its thread index variable, `idx`, when
+the kernel is launched with a particular kernel execution configuration and
+thread organization, hundreds or thousands of active threads concurrently perform the same summation operation on individual elements of the arrays A and B and stores the results in array C. This time, the A, B and C vectors are 
+allocated on device's global memory.
+
+The `arrayEqualityCheck()` function performs an element-by-element comparison
+of the resulting vectors returned from `arraySumOnHost()` and `arraySumOnDevice()` functions on the host side.
+
+The next section of our code involves function calls in the `main()` driver 
+function. After fetching the name of the program executable from the command
+line and printing it to the screen, we adopt CUDA runtime functions to
+set the device and then print its name. Setting the device index will be
+useful when the system has multiple devices installed. In a miscellaneous
+lesson, we will describe how to choose the best (most powerful) available 
+GPU if there host system has multiple GPU accelerator devices installed.
+
+
+
+
+
+
+
+
+
+
+[`cudaGetLastError()`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__ERROR.html#group__CUDART__ERROR_1g3529f94cb530a83a76613616782bd233)
 
 
 {% include links.md %}

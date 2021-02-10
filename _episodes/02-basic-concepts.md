@@ -136,8 +136,8 @@ the `helloFromCPU()` and `helloFromGPU()` functions which are written in pure
 the following form
 
 ~~~
-return_type function_name( parameter_list ) {
-    implementation_of_the_function
+returnType functionName( parameterList ) {
+    functionImplementation
 }
 ~~~
 {: .language-c}
@@ -153,8 +153,8 @@ threads. However, they are called on many CUDA threads to perform their task,
 concurrently. The **CUDA C** [syntax](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#programming-model) for kernel function definition is as follows
 
 ~~~
-__declaration_specification__ void kernel_function_name( parameter_list ) {
-    implementation_of_the_kernel_function
+__declarationSpecification__ void kernelName( parameterList ) {
+    kernelImplementation
 }
 ~~~
 {: .language-cuda}
@@ -181,7 +181,7 @@ programming language semantics adopted for (kernel) function launches.
 In **CUDA C**, a kernel function can be executed as follows
 
 ~~~
-kernel_function_name<<< grid, block >>>( parameter_list );
+kernelName<<< grid, block >>>( parameterList );
 ~~~
 {: .language-cuda}
 
@@ -192,8 +192,7 @@ The execution configuration exposes a great amount of control over *thread
 hierarchy* which enables the programmer to organize the threads for 
 kernel launch. This is one of the most powerful, critical and unique 
 aspects of CUDA programming model. In the next lesson, you will learn about
-thread hierarchy and the meaning of each of the two arguments, `grid` and `block` 
-within the execution configuration layout.
+thread hierarchy and the meaning of each of the two arguments, `grid` and `block` within the execution configuration layout.
 
 > ## Note:
 > An important difference between conventional function calls in C 

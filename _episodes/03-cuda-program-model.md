@@ -18,6 +18,7 @@ keypoints:
 - [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
 - [3. Summation of Arrays on GPUs](#3-summation-of-arrays-on-gpus)
   - [3.1. Header Files and Function Definitions](#31-header-files-and-function-definitions)
+  - [3.2. Structure of the Program](#32-structure-of-the-program)
 
 Our Hello World example from previous lesson lacks two important aspects of a CUDA
 program that are crucial for programmers in heterogeneous parallel programming within CUDA platform:
@@ -32,7 +33,7 @@ case study.
 In our array summation example, (and in many scientific applications, in general), we will follow a typical pattern 
 in CUDA programming which can be formulated in a series of steps as follows:
 
-1. Transfering the data from host to device
+1. Transferring the data from host to device
 2. Kernel execution on the device
 3. Moving the results back from device to host
 
@@ -377,12 +378,12 @@ int main(int argc, char **argv) {
     cudaDeviceProp deviceProp;
     cudaGetDeviceProperties(&deviceProp, deviceIdx);
     printf("GPU device %s with index (%d) is set!\n\n", \
-    deviceProp.name, deviceIdx); fflush(stdout);
+    deviceProp.name, deviceIdx);
 /*-----------------------------------------------*/
     /* Fixing the vector size to 1 * 2^24 = 16777216 (64 MB) */
     int vecSize = 1 << 24;
     size_t vecSizeInBytes = vecSize * sizeof(float);
-    printf("Vector size: %d floats (%lu MB)\n\n", vecSize, vecSizeInBytes/1024/1024); fflush(stdout);
+    printf("Vector size: %d floats (%lu MB)\n\n", vecSize, vecSizeInBytes/1024/1024);
 
     /* Memory allocation on the host */
     float *h_A, *h_B, *hostPtr, *devicePtr;
@@ -398,7 +399,7 @@ int main(int argc, char **argv) {
     dataInitializer(h_A, vecSize);
     dataInitializer(h_B, vecSize);
     tElapsed = chronometer() - tStart;
-    printf("Elapsed time for dataInitializer: %f second(s)\n", tElapsed); fflush(stdout);
+    printf("Elapsed time for dataInitializer: %f second(s)\n", tElapsed);
     memset(hostPtr, 0, vecSizeInBytes);
     memset(devicePtr,  0, vecSizeInBytes);
 
@@ -406,7 +407,7 @@ int main(int argc, char **argv) {
     tStart = chronometer();
     arraySumOnHost(h_A, h_B, hostPtr, vecSize);
     tElapsed = chronometer() - tStart;
-    printf("Elapsed time for arraySumOnHost: %f second(s)\n", tElapsed); fflush(stdout);
+    printf("Elapsed time for arraySumOnHost: %f second(s)\n", tElapsed);
 /*-----------------------------------------------*/
     /* (Global) memory allocation on the device */
     float *d_A, *d_B, *d_C;
@@ -430,10 +431,10 @@ int main(int argc, char **argv) {
     cudaDeviceSynchronize();
     tElapsed = chronometer() - tStart;
     printf("Elapsed time for arraySumOnDevice <<< %d, %d >>>: %f second(s)\n\n", \
-    grid.x, block.x, tElapsed); fflush(stdout);
+    grid.x, block.x, tElapsed);
 /*-----------------------------------------------*/
     /* Returning the last error from a runtime call */
-    cudaGetLastError() ;
+    cudaGetLastError();
 
     /* Data transfer back from device to host */
     cudaMemcpy(devicePtr, d_C, vecSizeInBytes, cudaMemcpyDeviceToHost);
@@ -505,7 +506,8 @@ The `chronometer()` uses `timezone` and `timeval` structures and
 
 > ## Note:
 > The `gettimeofday()` function is supported by GCC compilers and
-> might not work on Windows. For further information, see 
+> might not work on Windows. However, there are multiple ways to perform
+> the timing task within C/C++. For further information, see 
 > [here](https://levelup.gitconnected.com/8-ways-to-measure-execution-time-in-c-c-48634458d0f9) or
 > take a glance at [Advanced Linux Programming Book](https://www.amazon.com/Advanced-Linux-Programming-CodeSourcery-LLC/dp/0735710430) (section 8.7 gettimeofday: Wall-Clock Time).  .
 {: .discussion}
@@ -524,6 +526,8 @@ allocated on device's global memory.
 The `arrayEqualityCheck()` function performs an element-by-element comparison
 of the resulting vectors returned from `arraySumOnHost()` and `arraySumOnDevice()` functions on the host side.
 
+### 3.2. Structure of the Program
+
 The next section of our code involves function calls in the `main()` driver 
 function. After fetching the name of the program executable from the command
 line and printing it to the screen, we adopt CUDA runtime functions to
@@ -532,6 +536,32 @@ useful when the system has multiple devices installed. In a miscellaneous
 lesson, we will describe how to choose the best (most powerful) available 
 GPU if there host system has multiple GPU accelerator devices installed.
 
+Summation of arrays on the host side starts by specifying the array sizes using the [left-shit bitwise operator](https://en.cppreference.com/w/c/language/operator_arithmetic) and pointer declarations to be able to point to the memory
+addresses for arrays A and B when we allocate them on the host 
+using the `malloc()` function. In order to be able to distinguish between 
+pointers that refer to the memory addresses on the host and the device,
+we append the prefixes `h_` (for host) or `d_` (for device) to the variable names.
+Each of the arrays `h_A` and `h_B` are then passed to `dataInitializer()` function
+to be filled with random float numbers. After initialization step, 
+the `arraySumOnHost()` function sums both arrays A and B together on the host 
+and stores the resulting array in another allocated memory address on the host pointed to by the `hostPtr` variable. We adopted `chronometer()` to time the initialization
+and summations steps and printed them to the screen.
+
+The next part of the code is similar to the what we did for the summation
+of arrays A and B on the host but this time, we adopt CUDA C APIs instead of
+those of C/C++. For example, for memory allocation on the device, we use 
+`cudaMalloc()` instead of `malloc()`. 
+
+Remember in the [first section](#1-basics-of-the-device-memory-management-in-cuda) of this lesson, we mentioned that each CUDA program has a series of typical steps in 
+order to perform a specific task. After allocation of memory-- for arrays `d_A` and
+`d_B`-- on the device, we need to initialize them through copying the content of
+the corresponding arrays, `h_A` and `h_B`, from the host to their aforementioned counterparts on the device via adopting `cudaMemcpy()` functions.
+We have just finished the first, out of three, steps in a typical CUDA program
+where we transferred data from host to device (HtoD) using `cudaMemcpy()`.
+
+The next step is to execute the kernel `arraySumOnDevice()` kernel on the device.
+In order to do that, we need to organize our threads in blocks and blocks in grid from 
+the host so that we can access them on the device within the kernel as mentioned in the [previous section](#2-thread-hierarchy-in-cuda). 
 
 
 

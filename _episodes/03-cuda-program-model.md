@@ -1,24 +1,33 @@
 ---
 title: "CUDA Programming Model"
-teaching: 45
+teaching: 60
 exercises: 0
 questions:
-- "Container"
+- "What is thread hierarchy in CUDA?"
+- "How can the threads be organized in blocks and grids?"
+- "How can the data be transferred between host and device memory?"
+- "How can we measure the wall-time of an operation in a program?"
 objectives:
-- "Container"
+- "Learning about basics of the device memory management"
+- "Understanding the concept of thread hierarchy in CUDA programming"
+- "Familiarity with logistics of a typical CUDA program such as data transfer between host and device memory spaces"
 keypoints:
-- "Container"
+- "Device memory management"
+- "Thread hierarchy"
+- "Typical operations in CUDA program such as data transfer between host and device"
 ---
 
 <script type="text/javascript" async
   src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
 </script>
 
-- [1. Basics of the Device Memory Management in CUDA](#1-basics-of-the-device-memory-management-in-cuda)
-- [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
-- [3. Summation of Arrays on GPUs](#3-summation-of-arrays-on-gpus)
-  - [3.1. Header Files and Function Definitions](#31-header-files-and-function-definitions)
-  - [3.2. Structure of the Program](#32-structure-of-the-program)
+> ## Table of Contents
+> - [1. Basics of the Device Memory Management in CUDA](#1-basics-of-the-device-memory-management-in-cuda)
+> - [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
+> - [3. Summation of Arrays on GPUs](#3-summation-of-arrays-on-gpus)
+>   - [3.1. Header Files and Function Definitions](#31-header-files-and-function-definitions)
+>   - [3.2. Structure of the Program](#32-structure-of-the-program)
+{: .prereq}
 
 Our Hello World example from previous lesson lacks two important aspects of a CUDA
 program that are crucial for programmers in heterogeneous parallel programming within CUDA platform:
@@ -485,7 +494,11 @@ Arrays are equal.
 ```
 {: .output}
 
-A major problem with this code is that it is very long. 
+In this case, wall-time measurements indicate that the `arraySumOnDevice()`
+executes more than ten times faster than `arraySumOnHost()`. Since the 
+size of arrays we used are very small compared to what makes such measurements relevant and useful from practical point of view we do not
+intend overemphasize these timings and observed savings. 
+Another major problem with this code is its length. 
 In the next lesson, we are going to restructure this code by breaking it into multiple files when we talk a little bit about the **nvcc** compiler.
 
 Now, it is time to focus on our code and start analyzing it from the beginning.
@@ -558,20 +571,51 @@ order to perform a specific task. After allocation of memory-- for arrays `d_A` 
 the corresponding arrays, `h_A` and `h_B`, from the host to their aforementioned counterparts on the device via adopting `cudaMemcpy()` functions.
 We have just finished the first, out of three, steps in a typical CUDA program
 where we transferred data from host to device (HtoD) using `cudaMemcpy()`.
+Note that the `cudaMemcpy()` is synchronous meaning that flow of execution on the host will stop and wait for `cudaMemcpy()` to finish its job. 
 
 The next step is to execute the kernel `arraySumOnDevice()` kernel on the device.
 In order to do that, we need to organize our threads in blocks and blocks in grid from 
-the host so that we can access them on the device within the kernel as mentioned in the [previous section](#2-thread-hierarchy-in-cuda). 
+the host so that we can access them on the device within the kernel as mentioned in the [previous section](#2-thread-hierarchy-in-cuda). Thread organization is one of the
+most important aspects of CUDA programming that has a major impact on the performance
+of our code. In our intermediate and advanced tutorial, we will constantly have an
+eye on this factor and try to optimize the performance through finding the best
+possible configuration of threads in blocks and grids through a profiling-driven
+approach. Fixing the number of threads in each block (`numThreadsInBlocks`) for each
+block dimension determines the number of blocks in the grid for each dimension.
+Once we defined the `block` and `grid` variables on the host,
+we pass them to the execution configuration `<<<grid, block>>>` as arguments
+in order to launch the kernel on the device. Compared with synchronous function
+calls such as `cudaMemcpy()` where the host has to wait until its execution is completed, the kernel launches are asynchronous and the execution flow returns
+to host right after the kernel is executed. Since we intend to measure the 
+execution wall-time for `arraySumOnDevice()` kernel launch from the host,
+we need to tell the host to wait for the kernel to complete its task. This is
+done by calling `cudaDeviceSynchronize()` from the host right after the kernel launch.
 
+When the kernel is launched, thousands of threads gain access to data and resources
+on GPU and perform the array summation concurrently. This is the motivation behind
+the concept *Single Instruction Multiple Threads (SIMT)* which NVIDIA has coined for
+this type of architecture. 
 
+> ## Note:
+> The SIMT architecture is very similar to the Single Instruction
+> Multiple Data (SIMD) variant in 
+> [*Flynn's Taxonomy*](https://en.wikipedia.org/wiki/Flynn%27s_taxonomy). However, 
+> their main difference is that in SIMD, all elements of an array should be operated 
+> upon simultaneously while in SIMT architecture, multiple threads in the same group 
+> while performing the same instruction, execute the operation independently on its 
+> own private data.
+{: .discussion}
 
-
-
-
-
-
-
-[`cudaGetLastError()`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__ERROR.html#group__CUDART__ERROR_1g3529f94cb530a83a76613616782bd233)
-
+The result of array summation on GPU is stored in another array d_C on
+device's global memory. The step three of a CUDA program is to transfer
+the resulting data back from device to host (DtoH). 
+Before transferring the data, we make sure that there was not errors in the
+last CUDA runtime call through using [`cudaGetLastError()`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__ERROR.html#group__CUDART__ERROR_1g3529f94cb530a83a76613616782bd233). 
+If there was no errors, we transfer the results back to the host using 
+`cudaMemcpy()` and store it in host's allocated memory pointed to by `devicePtr` 
+variable. Now that we have the summation results from CPU and GPU stored on the 
+host memory in `hostPtr` and `devicePtr`, respectively, we can compare them 
+using `arrayEqualityCheck()` function. The final stage of our program performs
+housekeeping by deallocating the memories on both device and host. 
 
 {% include links.md %}

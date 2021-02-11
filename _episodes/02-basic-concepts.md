@@ -14,6 +14,7 @@ objectives:
 keypoints:
 - "CUDA programming model"
 - "Structure of a CUDA program"
+- "Writing and launching CUDA kernels"
 ---
 
 > ## Table of Contents

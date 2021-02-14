@@ -40,7 +40,13 @@ GPU architectures are often part of the following production line families:
 - **Geforce and Titan**: built for consumer graphics and entertainment
 - **Quadro**: created for professional visualization
 - **Tesla**: optimized for technical and scientific computing
-- **Jetson**: suitable for artificial intelligence (AI)-driven autonomous machines 
+- **Jetson**: suitable for artificial intelligence (AI)-driven autonomous machines
+
+<!-- + **AGX Xavier** and **Xavier NX** (Compute Capability = 7.2) Vol
++ **Nano** (Compute Capability = 5.3) Maxwell architectu
++ **TX2** (Compute Capability = 6.2) Pascal architectu
++ **TX1** (Compute Capability = 5.3) Maxwell G
++ **X1** (Compute Capability = 5.3) Tegra GPU -->
 
 As detailed in the [Software/Hardware Specifications]({{ site.baseurl }}{% link index.md %}#sh-specifications)
 section, we will use two CUDA-enabled GPU devices from the GeForce family 

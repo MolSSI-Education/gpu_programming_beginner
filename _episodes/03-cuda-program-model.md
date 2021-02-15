@@ -18,8 +18,9 @@ keypoints:
 ---
 
 <script type="text/javascript" async
-  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
+
 
 > ## Table of Contents
 > - [1. Basics of the Device Memory Management in CUDA](#1-basics-of-the-device-memory-management-in-cuda)
@@ -309,9 +310,12 @@ the current process.
 
 ## 3. Summation of Arrays on GPUs
 
-Copy the following code into an empty text file, rename it to *gpu_vector_sum.cu* and save it.
+Copy the following code into an empty text file, rename it to *gpuVectorSum.cu* and save it.
 
 ```
+/*================================================*/
+/*================ gpuVectorSum.cu ===============*/
+/*================================================*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -372,8 +376,6 @@ void arrayEqualityCheck(float *hostPtr, float *devicePtr, const int size) {
     if (isEqual) {
         printf("Arrays are equal.\n\n");
     }
-
-    return;
 }
 /*************************************************/
 int main(int argc, char **argv) {
@@ -472,8 +474,8 @@ int main(int argc, char **argv) {
 After saving the code, it can be compiled and run using the following two commands
 
 ```
-$ nvcc gpu_vector_sum.cu -o gpu_vector_sum
-$ ./gpu_vector_sum
+$ nvcc gpuVectorSum.cu -o gpuVectorSum
+$ ./gpuVectorSum
 ```
 {: .language-bash}
 

@@ -3,11 +3,20 @@ title: "CUDA GPU Compilation Model"
 teaching: 45
 exercises: 2
 questions:
-- "Container"
+- "What is NVCC compiler and why do we need it?"
+- "Can multiple GPU and CPU code source files be compiled together with
+NVCC?"
+- "How does NVCC distinguish between the host code and that of the device and handle the compilation process?"
+- "How can I manage runtime errors during a CUDA program execution?"
 objectives:
-- "Container"
+- "Understanding the basic mechanism of NVCC compilation phases"
+- "Learning about multiple source code compilation process using NVCC compiler"
+- "Mastering the basics of error handling in a CUDA program using C/C++ wrapper marcos"
 keypoints:
-- "Container"
+- "The NVCC compiler"
+- "Compilation phases"
+- "Compiling multiple CPU and GPU source code files simultaneously"
+- "Error handling in a CUDA program"
 ---
 
 > ## Table of Contents

@@ -18,6 +18,9 @@ keypoints:
 In Turing SM, we have concurrent FP and Int execution datapaths, enhanced L1
 memory cache, tensor cores and ray tracing cores.
 
+![Figure 1](../fig/SM.png)
+
+
 ## 2. Profiling Tools: 
 
 {% include links.md %}

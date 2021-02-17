@@ -260,7 +260,9 @@ As such, the other two undefined variables are automatically set to 1 and ignore
 It is important to note that the number of grids in each direction (*i.e.*, x, y, z)
 is dependent on the number of blocks through the following formula:
 
-$$ \text{grids.q} = \frac{\text{number of elements} + \text{block.q} - 1}{\text{block.q}} \qquad \quad \text{where} \qquad q = x, y, z $$
+$$ 
+\text{grids.q} = \left(\frac{\text{numberOfElements} + \text{block.q} - 1}{\text{block.q}}\right), \qquad \quad \text{where} \qquad q = x, y, z 
+$$
 
 In the next part of our code, we then access the block and grid dimension variables 
 within the main function to print them to the screen from the host.

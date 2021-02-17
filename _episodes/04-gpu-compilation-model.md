@@ -10,7 +10,7 @@ NVCC?"
 - "How can I manage runtime errors during a CUDA program execution?"
 objectives:
 - "Understanding the basic mechanism of NVCC compilation phases"
-- "Learning about multiple source code compilation process using NVCC compiler"
+- "Learning about multiple source code com  pilation process using NVCC compiler"
 - "Mastering the basics of error handling in a CUDA program using C/C++ wrapper marcos"
 keypoints:
 - "The NVCC compiler"

@@ -1,13 +1,22 @@
 ---
 title: "CUDA Execution Model"
-teaching: 45
+teaching: 35
 exercises: 0
 questions:
-- "Container"
+- "What is CUDA execution model?"
+- "How some knowledge of GPU architecture helps CUDA programmers to write more efficient programs?"
+- "What are streaming multiprocessors and thread warps?"
+- "What is profiling and why is it useful to a programmer?"
+- "How many profiling tools for CUDA programming are out there and which one(s) should I choose?"
 objectives:
-- "Container"
+- "Understanding the fundamentals of the CUDA execution model"
+- "Establishing the importance of insights from GPU architecture and its impacts in the efficiency of a CUDA program"
+- "Learning about the building blocks of GPU architecture: streaming multiprocessors and thread warps"
+- "Learning the basics of profiling and becoming familiar with the profiling tools in CUDA programming"
 keypoints:
-- "Container"
+- "CUDA execution model"
+- "Streaming multiprocessors and thread warps"
+- "Profiling tools for CUDA programming"
 ---
 
 <script type="text/javascript" async
@@ -16,6 +25,8 @@ keypoints:
 
 - [1. GPU Architecture](#1-gpu-architecture)
 - [2. Profiling Tools](#2-profiling-tools)
+  - [2.1. Command-Line NVIDIA Profiler](#21-command-line-nvidia-profiler)
+  - [2.2. NVIDIA Visual Profiler](#22-nvidia-visual-profiler)
 
 ## 1. GPU Architecture
 
@@ -124,6 +135,8 @@ and tracing purposes, and GPU kernel profiling, respectively. As such,
 in this tutorial we are going to present a brief overview the basics of traditional profilers,
 nvvp and nvprof. We will adopt the Nsight Compute tool in our future intermediate and advanced level 
 tutorials which will be based on profiling-driven optimization methods toward CUDA programming.
+
+### 2.1. Command-Line NVIDIA Profiler
 
 Let's adopt nvprof to analyze the timings in our
 [Summation of Arrays on GPUs]({{site.baseurl}}{% link _episodes/03-cuda-program-model.md %}#3-summation-of-arrays-on-gpus)
@@ -279,7 +292,6 @@ Arrays are equal.
 ~~~
 {: .output}
 
-
 The output is a mixture of C-based `print()` functions created and 
 what nvprof prints for us. In this output, `==5906==`, shows the process 
 ID (PID) which is assigned by the operating system to the application's 
@@ -301,18 +313,57 @@ parallelization due to the large ratio of non-computational tasks' overhead such
 possibility of making major changes to the algorithmic aspects of the code 
 which might lead to significant performance improvements. The *API calls* 
 part of the *Profiling results* section of the nvprof output focuses on CUDA 
-API calls which allows us to have a fine-grid look at the events happening 
+(runtime and driver) API calls which allows us to have a fine-grid look at the events happening 
 behind the scene.
 
 > ## Note:
 > The profiling results of nvprof are [directed](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#redirecting-output)
 > to `stderr` by default. You can use the  `--log-file <fileName>` option 
 > within the nvprof command line to save the output in a file named 
-> `<fileName>`. This file can be reviewed later by either nvprof itself or
-> visual profiler (nvvp).
+> `<fileName>`.
 {: .discussion}
 
+### 2.2. NVIDIA Visual Profiler
 
+After the compilation step, instead of running the executable with
+nvprof profiler, one can profile it using nvvp by creating an (executable)
+[session](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#sessions). Upon opening the executable
+file from nvvp, we can choose from a list of profiling options and methods
+such as guided analysis to be able to collect data from our CUDA program. Guided analysis gives us suggestions which help us find opportunities within our code for performance improvement.
 
+The main graphical user interface for nvvp is illustrated in the following
+figure where the main screen is split into separate panels and organized 
+as *views* 
+
+![Figure 2](../fig/nvvp.png)
+
+The main section at the top of our screen is the *timeline view* detailing
+GPU and CPU activities in your program as a function of (execution) time.
+Timelines consist of timeline rows, each of which shows the beginning and 
+end of the lifetime of the activity indicated by the row label. Sub-rows might also be used for overlapping activities.
+
+In the *analysis view* panel manages the application analysis and 
+presenting the results. There are two modes or analysis: (i) *guided*,
+and (ii) *unguided*. In the guided analysis mode, nvvp walks you through
+a list of analysis stages to clarify what limits the performance of your
+application and where you can find opportunities in your program to improve
+the performance. In the unguided mode, the profiling results are collected
+and presented to you in such a way that you, instead of system, chooses
+the stages and decides which one takes the priority to be further 
+investigated first. In the figure presented above, the bottom-left and 
+middle panels, *i.e.*, the analysis and results views represent the 
+profiling analysis stages and results in unguided mode, respectively.
+The *Data Movement and Concurrency* stage in this case, gives us four
+possible places that need improvements for performance optimization.
+The first result for example is what we had inferred from timing results of
+nvprof: the ratio of actual computation on the device over the GPU time
+spent on non-computational tasks is low. 
+
+The *Dependency Analysis* stage, which we is shown in the following figure, 
+provides profiling information on the timings as well as correlation or dependency of various activities during the program lifetime. Please refer 
+to [CUDA Toolkit documentation](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#visual) for further details about other view 
+types and different aspects of profiling in nvvp.
+
+![Figure 3](../fig/dependencyAnalysis.png)
 
 {% include links.md %}

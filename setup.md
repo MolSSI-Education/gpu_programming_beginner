@@ -46,7 +46,7 @@ consider the following set of actions.
 >    &#9824; For a minimalist, a simple bash command will do the trick
 >
 >    ~~~
->    ls -l /dev/nv*   
+>    $ ls -l /dev/nv*   
 >    ~~~
 >    {: .language-bash} 
 > 

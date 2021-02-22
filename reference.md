@@ -1,9 +1,6 @@
 ---
 layout: reference
 ---
-## References
-
-1. []
 
 ## Further Readings
 

@@ -4,15 +4,15 @@ teaching: 35
 exercises: 0
 questions:
 - "What is CUDA execution model?"
-- "How some knowledge of GPU architecture helps CUDA programmers to write more efficient programs?"
+- "How insights from GPU architecture helps CUDA programmers to write more efficient software?"
 - "What are streaming multiprocessors and thread warps?"
-- "What is profiling and why is it useful to a programmer?"
-- "How many profiling tools for CUDA programming are out there and which one(s) should I choose?"
+- "What is profiling and why is it important to a programmer?"
+- "How many profiling tools for CUDA programming are available and which one(s) should I choose?"
 objectives:
 - "Understanding the fundamentals of the CUDA execution model"
-- "Establishing the importance of insights from GPU architecture and its impacts in the efficiency of a CUDA program"
+- "Establishing the importance of knowledge from GPU architecture and its impacts on the efficiency of a CUDA program"
 - "Learning about the building blocks of GPU architecture: streaming multiprocessors and thread warps"
-- "Learning the basics of profiling and becoming familiar with the profiling tools in CUDA programming"
+- "Mastering the basics of profiling and becoming proficient in adopting profiling tools in CUDA programming"
 keypoints:
 - "CUDA execution model"
 - "Streaming multiprocessors and thread warps"
@@ -23,10 +23,12 @@ keypoints:
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-- [1. GPU Architecture](#1-gpu-architecture)
-- [2. Profiling Tools](#2-profiling-tools)
-  - [2.1. Command-Line NVIDIA Profiler](#21-command-line-nvidia-profiler)
-  - [2.2. NVIDIA Visual Profiler](#22-nvidia-visual-profiler)
+> ## Table of Contents
+> - [1. GPU Architecture](#1-gpu-architecture)
+> - [2. Profiling Tools](#2-profiling-tools)
+>   - [2.1. Command-Line NVIDIA Profiler](#21-command-line-nvidia-profiler)
+>   - [2.2. NVIDIA Visual Profiler](#22-nvidia-visual-profiler)
+{: .prereq}
 
 ## 1. GPU Architecture
 
@@ -40,42 +42,44 @@ over blind coding and allows for the best possible thread organization
 and kernel configuration to maximize the performance. 
 As such, CUDA execution model provides a logical view of thread concurrency
 within the SIMT framework and bridges between the **streaming multiprocessors (SMs)**,
-as the central building block of GPU architecture, and improvement of memory access
-and instruction throughput. 
+as the central building block of GPU architecture, and the improvement of memory access
+and instruction throughput.
 
-The SMs partition the thread blocks into units of 32
-consecutive threads called **warps** which will be further scheduled for execution 
-by *warp schedulers*. Within a warp, the consecutive threads in blocks have unique 
+The SMs partition the thread blocks into the units of 32 consecutive threads 
+called **warps** which can be scheduled for execution by *warp schedulers*.
+Within a warp, the consecutive threads in blocks have unique 
 IDs and are indexed in ascending order starting from 0.
-For a given thread block, the number of warps can be calculated with the
+For a given thread block, the number of warps can be calculated using the
 following formula
 
-$$
+$$ \tag{1}\label{EQ:WARPPERBLOCK}
 \text{WarpsPerBlock} = \bigg\lceil\frac{\text{threadsPerBlock}}{\text{warpSize}}\bigg\rceil,
 $$
 
-where $\lceil \cdot \rceil$ is the 
+where $\lceil \cdot \rceil$ in Eq. \eqref{EQ:WARPPERBLOCK} is the 
 [ceiling function](https://dlmf.nist.gov/front/introduction#common.p1.t1.r18)
 and *threadsPerBlock* is defined as
 
-$$
+$$ \tag{2}\label{EQ:THRDPERBLOCK}
 \text{threadsPerBlock} = \sum_q \text{block.}q   \qquad \quad \text{where} \qquad    q \in \{x, y, z \}
 $$
 
-According to these formulae, a warp is never distributed between different 
-thread blocks. CUDA manages valuable and limited resources such as registers
-and shared memory on SMs and distributes them among all its threads. The limitations
-of these resources affects the number of active warps and the level of SIMT parallelism
-that can be realized in a particular SM. As such, in order to maximize GPU utilization
-for achieving the best performance through increasing the number of
-active warps with respect to the limited resources, 
-a proper thread organization and execution configuration would 
-be of core importance. For example, if we organize a 2-dimensional 
-$4 \times 20$ array of threads in a block (total of 80 threads/block) 
-using CUDA on the software side, the device will allocate 3 warps for this
-block on the hardware side resulting in the allocation of resources for supporting 96 threads.
-However, 16 threads in one of the three warps are inactive while still
-burning the allocated resources.
+According to Eqs. \eqref{EQ:WARPPERBLOCK} and \eqref{EQ:THRDPERBLOCK}, 
+a warp is never distributed between different thread blocks. 
+CUDA manages valuable and limited resources such as registers
+and shared memory on SMs and distributes them among all threads. 
+The limitations of these resources affects the number of active warps 
+that can be created and the level of SIMT parallelism that 
+can be realized in a particular SM as a result. As such, in order to
+maximize the GPU utilization and achieve the best performance through 
+increasing the number of active warps with respect to the limited 
+resources, a proper thread organization and execution configuration 
+would be of imperative. For example, if we organize a $4 \times 20$ 
+array of threads in a 2-dimensional block (total of 80 threads/block) 
+using CUDA on the software side, the device will allocate 3 warps for
+this block on the hardware side resulting in the allocation of resources
+targeted for supporting 96 threads. As such, 16 threads in one of the 
+three warps remain inactive while still consuming (wasting) the allocated resources.
 
 > ## Note:
 > Although from the logical point of view, threads
@@ -84,32 +88,31 @@ burning the allocated resources.
 > world.
 {: .discussion}
 
-All threads in a warp execute the same instruction and perform the 
-requested operation on their own private data. Therefore, maximum 
-efficiency can be realized if all 32 threads are on the same 
-execution path. However, the execution of different instructions 
+All threads in a warp execute the same instruction on their own private data.
+Therefore, maximum efficiency can be realized if all 32 threads are on
+the same execution path. However, the execution of different instructions 
 (different execution paths) by threads *within a warp* causes 
 **warp divergence**. The diverged threads within a warp will execute
-each execution path in serial mode (loss of parallelism) and disable those
+each execution path in the serial mode (loss of parallelism) and disable those
 threads that took a different execution path. As such, warp divergence should be
-avoided at all costs because results in serious performance deterioration.
+avoided at all costs because it results in serious performance deteriorations.
 Note that warp divergence can only happen among the threads of the same warp and
 would be irrelevant if threads of different warps are considered.
 This fact about the relation between GPU architecture and software performance
-should provide a hint regarding the importance of having knowledge about the
+should provide a hint regarding the importance of having some knowledge about the
 hardware aspects and CUDA execution model.
 
-Let's look at the main parts of a Fermi SM to from a logical perspective
+Let us look at the main parts of a Fermi SM from a logical perspective
 to be able to gain some insights about the hardware micro-architectures
 in NVDIA GPU devices
 
 ![Figure 1](../fig/SM.png)
 
-With each architecture release, NVIDIA attempts to introduce new technological 
+With each architecture release, NVIDIA has attempted to introduce new technological 
 breakthroughs or major improvements over predecessor models. Therefore, although
-the essential parts of the figure above remains somewhat similar across
-different architectures, each architecture might offer a very different hardware 
-design for its SMs. For example, in 
+the essential parts of the Fermi architecture illustrated above remains somewhat 
+similar across different architectures, each architecture might offer a very different
+hardware design for its SMs. For example, in 
 [Turing SM](https://www.nvidia.com/en-us/design-visualization/technologies/turing-architecture/)
 series, 16 trillion concurrent floating-point operations and integer operations per second are
 supported. Turing also features a unified architecture for enhanced shared memory, L1, and 
@@ -120,43 +123,47 @@ was improved by about 8 times over its predecessor architecture, Pascal.
 
 ## 2. Profiling Tools
 
-The profiling tools help the CUDA programmer to better understand, analyze and
+The profiling tools help CUDA programmers to better understand, analyze and
 find opportunities to improve the performance and efficiency of a CUDA program 
-in a systematic way. NVIDIA provides three major ways for profiling a CUDA program:
+in a systematic way. NVIDIA provides three major tools for profiling a CUDA program:
 
-1. **NVIDIA Visual Profiler (NVVP)**: A graphical tool that provides the applications CPU/GPU execution
-   timeline and tools to identify optimization opportunities for improving the performance 
-2. **NVIDIA Profiler (NVPROF)**: A command-line based profiling tool for collecting the profiling data and the timeline of CUDA-related activities on both CPU and GPU
+1. **NVIDIA Visual Profiler (NVVP)**: A graphical software that provides a timeline for 
+   analyzing the CPU/GPU execution activities and identifying the optimization opportunities
+   for improving the performance of the CUDA program
+2. **NVIDIA Profiler (NVPROF)**: A command-line-based profiling tool for collecting the profiling
+    data and the CUDA-related activities on both CPU and GPU
 3. **NVIDIA Nsight Tools**: An interactive next-generation kernel profiler tool for CUDA applications
 
 Since both **nvvp** and **nvprof** profilers are going to be deprecated in future CUDA releases,
 NVIDIA recommends [migrating](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#migrating-to-nsight-tools)
 to [**NVIDIA Nsight System**](https://developer.nvidia.com/nsight-systems) and
-[**NVIDIA Nsight Compute**](https://developer.nvidia.com/nsight-compute) for GPU/CPU sampling
+[**NVIDIA Nsight Compute**](https://developer.nvidia.com/nsight-compute) for GPU/CPU sampling,
 and tracing purposes, and GPU kernel profiling, respectively. As such,
-in this tutorial we are going to present a brief overview the basics of traditional profilers,
-nvvp and nvprof. We will adopt the Nsight Compute tool in our future intermediate and advanced level 
-tutorials which will be based on profiling-driven optimization methods toward CUDA programming.
+in this tutorial we are going to present a brief overview the basics of
+traditional profilers, nvvp and nvprof. We will adopt the Nsight Compute
+tools in our future intermediate and advanced level tutorials which will 
+be based on profiling-driven optimization approaches toward CUDA programming.
 
 ### 2.1. Command-Line NVIDIA Profiler
 
-Let's adopt nvprof to analyze the timings in our
+Let us adopt nvprof to analyze the timings in our 
 [Summation of Arrays on GPUs]({{site.baseurl}}{% link _episodes/03-cuda-program-model.md %}#3-summation-of-arrays-on-gpus)
 program, which we had broken it down into multiple source files
 in the previous [lesson]({{site.baseurl}}{% link _episodes/04-gpu-compilation-model.md %}#2-compiling-separate-source-files-using-nvcc).
-nvprof can be easily customized to provide different contents and ways
+The nvprof profiler can be easily customized to provide different contents and ways
 of collecting data on various GPU/CPU activities through adopting the
 following [semantics](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvprof-overview)
 
 ~~~
-$ nvprof [options] [application] [applicationOptionsAndArguments]
+$ nvprof [options] [application] [appOptions]
 ~~~
 {: .language-bash}
 
 Since nvprof can give the time spent on each GPU kernel and CUDA API 
-function calls, we will not need to use the `chronometer()` C-based function. Therefore, let's comment out/remove those function
-calls and their corresponding print functions from 
-our ***gpuVectorSum.cu*** source file which should look like the following
+function calls, we will not need to use the `chronometer()` C-based function.
+Therefore, let us comment out or remove those function
+calls and their corresponding print functions from our ***gpuVectorSum.cu*** 
+source file which should look like the following
 
 ~~~
 /*================================================*/
@@ -258,7 +265,7 @@ $ nvprof ./gpuVectorSum
 ~~~
 {: .language-bash}
 
-The resulting output will be similar to the one presented here
+The resulting output will be similar to the following
 
 ~~~
 Kicking off ./test
@@ -294,29 +301,33 @@ Arrays are equal.
 ~~~
 {: .output}
 
-The output is a mixture of C-based `print()` functions created and 
-what nvprof prints for us. In this output, `==5906==`, shows the process 
+The output is a mixture of C-based `printf()` function results and 
+what nvprof has printed. In this output, `==5906==`, shows the process 
 ID (PID) which is assigned by the operating system to the application's 
-execution. The `== <PID> ==` also signifies the starting point in every nvprof message section. The timing units are given in seconds (s),
+execution. The `== <PID> ==` also signifies the starting point in every 
+nvprof message section. The timing units are given in seconds (s),
 milliseconds (*m*s), microseconds (*u*s) or nanoseconds (*n*s).
 The *GPU activities* part within the *Profiling results* section of the 
 nvprof output demonstrates that about 96% of GPU's activities were focused
 on performing data transfer and non-computational tasks while around only
-4% of devices efforts were directed to computation. 
-The columns Calls, Avg, Min, and Max show the number of calls and average,
-minimum and maximum timings for these number of function calls, respectively.
-Clearly, if there is only one call to a specific function, Min, Max, and Avg columns show the same number.
+4% of the device's efforts were directed to the actual computation.
+The columns *Calls*, *Avg*, *Min*, and *Max* show the number of calls,
+average, minimum and maximum timings for these number of function calls, 
+respectively. Clearly, if there is only one call to a specific function, 
+Min, Max, and Avg columns show the same number.
 
-This simple example is only a toy model, but enough to show you the typical 
-conclusions you can reach when you analyze your program using profiling 
-tools. For example, it shows you that the task at hand is not 
+This simple example is only a toy model, but enough to illustrate the typical 
+conclusions one can reach when analyzing a CUDA program using profiling 
+tools. For example, it shows that the task at hand is not 
 "data-intensive enough" to be suitable for heterogeneous GPU+CPU 
-parallelization due to the large ratio of non-computational tasks' overhead such as data transfer and memory allocation on the over the computation instruction itself. The simplicity of this example also rules out the 
-possibility of making major changes to the algorithmic aspects of the code 
-which might lead to significant performance improvements. The *API calls* 
-part of the *Profiling results* section of the nvprof output focuses on CUDA 
-(runtime and driver) API calls which allows us to have a fine-grid look at the events happening 
-behind the scene.
+parallelization due to the large ratio of non-computational tasks' overhead
+such as data transfer and memory allocation over the target computational 
+instruction (*i.e.*, the array summation). The simplicity of this example 
+also rules out the possibility of making major changes to the algorithmic 
+aspects of the code which might lead to significant performance improvements.
+The *API calls* part of the *Profiling results* section of the nvprof output 
+focuses on CUDA (runtime and driver) API calls which allows us to have a 
+fine-grid look at the events happening behind the scene.
 
 > ## Note:
 > The profiling results of nvprof are [directed](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#redirecting-output)
@@ -329,9 +340,11 @@ behind the scene.
 
 After the compilation step, instead of running the executable with
 nvprof profiler, one can profile it using nvvp by creating an (executable)
-[session](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#sessions). Upon opening the executable
-file from nvvp, we can choose from a list of profiling options and methods
-such as guided analysis to be able to collect data from our CUDA program. Guided analysis gives us suggestions which help us find opportunities within our code for performance improvement.
+[session](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#sessions).
+Upon opening the executable file from nvvp, we can choose from a list of profiling 
+options and methods such as *guided analysis* to be able to collect data from 
+our CUDA program. Guided analysis gives us systematic suggestions which help us find
+opportunities within our code for performance improvements.
 
 The main graphical user interface for nvvp is illustrated in the following
 figure where the main screen is split into separate panels and organized 
@@ -340,31 +353,34 @@ as *views*
 ![Figure 2](../fig/nvvp.png)
 
 The main section at the top of our screen is the *timeline view* detailing
-GPU and CPU activities in your program as a function of (execution) time.
+the GPU and CPU activities in your program as a function of execution time.
 Timelines consist of timeline rows, each of which shows the beginning and 
-end of the lifetime of the activity indicated by the row label. Sub-rows might also be used for overlapping activities.
+the end of the lifetime of activities indicated by the corresponding row label.
+Sub-rows might also be used for overlapping activities.
 
-In the *analysis view* panel manages the application analysis and 
-presenting the results. There are two modes or analysis: (i) *guided*,
+The *analysis view* panel manages the application analysis and 
+presents the results. There are two modes of analysis: (i) *guided*,
 and (ii) *unguided*. In the guided analysis mode, nvvp walks you through
-a list of analysis stages to clarify what limits the performance of your
-application and where you can find opportunities in your program to improve
-the performance. In the unguided mode, the profiling results are collected
-and presented to you in such a way that you, instead of system, chooses
-the stages and decides which one takes the priority to be further 
-investigated first. In the figure presented above, the bottom-left and 
+a list of analysis stages to clarify what factors limit the performance of your
+application and where you can find opportunities in your program for improvement.
+In the unguided mode, the profiling results are collected
+and presented to you in such a way that you, instead of system, choose
+the focus stages and decide which one takes the priority to be further 
+investigated. In the figure presented above, the bottom-left and 
 middle panels, *i.e.*, the analysis and results views represent the 
-profiling analysis stages and results in unguided mode, respectively.
+profiling analysis stages and results, respectively in the unguided mode.
 The *Data Movement and Concurrency* stage in this case, gives us four
 possible places that need improvements for performance optimization.
-The first result for example is what we had inferred from timing results of
+The first result, for example, is what we had inferred from timing results of
 nvprof: the ratio of actual computation on the device over the GPU time
-spent on non-computational tasks is low. 
+spent on non-computational tasks is small. 
 
 The *Dependency Analysis* stage, which we is shown in the following figure, 
-provides profiling information on the timings as well as correlation or dependency of various activities during the program lifetime. Please refer 
-to [CUDA Toolkit documentation](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#visual) for further details about other view 
-types and different aspects of profiling in nvvp.
+provides profiling information on the timings as well as correlation or 
+dependency of various activities during the program lifetime. Please refer 
+to the [CUDA Toolkit documentation](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#visual)
+for further details about other view types and different aspects of profiling
+in nvvp.
 
 ![Figure 3](../fig/dependencyAnalysis.png)
 

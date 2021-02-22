@@ -1,6 +1,6 @@
 ---
 title: "Basic Concepts in CUDA Programming"
-teaching: 45
+teaching: 30
 exercises: 0
 questions:
 - "How to write, compile and run a basic CUDA program?"
@@ -9,11 +9,11 @@ questions:
 objectives:
 - "Understanding the basics of the CUDA programming model"
 - "The ability to write, compile and run a basic CUDA program"
-- "Recognition of similarities in semantics between **C** programming language syntax and that of **CUDA C** extension"
+- "Recognition of similarities between the semantics of C and those of CUDA C"
 keypoints:
 - "CUDA programming model"
 - "Preliminary structure of a CUDA program"
-- "Writing and launching CUDA kernels"
+- "Implementing and launching CUDA kernels"
 ---
 
 > ## Table of Contents

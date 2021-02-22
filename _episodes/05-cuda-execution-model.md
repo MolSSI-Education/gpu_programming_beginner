@@ -56,7 +56,7 @@ $$ \tag{1}\label{EQ:WARPPERBLOCK}
 \text{WarpsPerBlock} = \bigg\lceil\frac{\text{threadsPerBlock}}{\text{warpSize}}\bigg\rceil,
 $$
 
-where $\lceil \cdot \rceil$ in Eq. \eqref{EQ:WARPPERBLOCK} is the 
+where $$ \lceil \cdot \rceil $$ in Eq. \eqref{EQ:WARPPERBLOCK} is the 
 [ceiling function](https://dlmf.nist.gov/front/introduction#common.p1.t1.r18)
 and *threadsPerBlock* is defined as
 

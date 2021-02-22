@@ -54,7 +54,9 @@ $$
 \text{WarpsPerBlock} = \bigg\lceil\frac{\text{threadsPerBlock}}{\text{warpSize}}\bigg\rceil,
 $$
 
-where *threadsPerBlock* is defined as
+where $\lceil \cdot \rceil$ is the 
+[ceiling function](https://dlmf.nist.gov/front/introduction#common.p1.t1.r18)
+and *threadsPerBlock* is defined as
 
 $$
 \text{threadsPerBlock} = \sum_q \text{block.}q   \qquad \quad \text{where} \qquad    q \in \{x, y, z \}

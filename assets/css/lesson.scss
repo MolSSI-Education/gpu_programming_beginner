@@ -81,7 +81,7 @@ $color-testimonial: #fc8dc1 !default;
 .python::before, .language-python::before { content: "Python"; }
 .cpp::before, .language-cpp::before { content: "C++"; }
 .c::before, .language-c::before { content: "C"; }
-.cuda::before, .language-cuda::before { content: "CUDA C"; }
+.cuda::before, .language-cuda::before { content: "CUDA C/C++"; }
 .r::before, .language-r::before { content: "R"; }
 .sql::before, .language-sql::before { content: "SQL"; }
 

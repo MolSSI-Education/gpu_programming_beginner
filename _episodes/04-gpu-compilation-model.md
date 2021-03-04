@@ -95,7 +95,7 @@ as ***cCode.c***. The resulting source file should look like the following
 
 ~~~
 /*================================================*/
-/*==================== cCode.h ===================*/
+/*==================== cCode.c ===================*/
 /*================================================*/
 #include <stdlib.h>
 #include <stdio.h>
@@ -676,7 +676,7 @@ code, open the ***cCode.h*** header file and add the following macro definition 
 
 #define ERRORHANDLER(funcCall) { \
     const cudaError_t error = funcCall; \
-    char *errorMessage = cudaGetErrorString(error); \
+    const char *errorMessage = cudaGetErrorString(error); \
     if (error != cudaSuccess) { \
         printf("Error in file %s, line %d, code %d,  Message %s\n", \
         __FILE__, __LINE__, error, errorMessage); \

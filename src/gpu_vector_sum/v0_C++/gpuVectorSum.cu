@@ -1,8 +1,7 @@
 /*================================================*/
 /*================ gpuVectorSum.cu ===============*/
 /*================================================*/
-#include <stdlib.h>
-#include <stdio.h>
+// #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
 #include <stdbool.h>
@@ -107,7 +106,8 @@ int main(int argc, char **argv) {
     tStart = chronometer();
     arraySumOnHost(h_A, h_B, hostPtr, vecSize);
     tElapsed = chronometer() - tStart;
-    printf("Elapsed time for arraySumOnHost: %f second(s)\n", tElapsed);
+    std::cout << "Elapsed time for arraySumOnHost: "
+    << tElapsed <<" second(s)" << std::endl;
 /*-----------------------------------------------*/
     /* (Global) memory allocation on the device */
     float *d_A, *d_B, *d_C;
@@ -130,8 +130,9 @@ int main(int argc, char **argv) {
     arraySumOnDevice<<<grid, block>>>(d_A, d_B, d_C, vecSize);
     cudaDeviceSynchronize();
     tElapsed = chronometer() - tStart;
-    printf("Elapsed time for arraySumOnDevice <<< %d, %d >>>: %f second(s)\n\n", \
-    grid.x, block.x, tElapsed);
+    std::cout << "Elapsed time for arraySumOnDevice <<< "
+    << grid.x << "," << block.x << " >>>: " << tElapsed 
+    << " second(s)\n" << std::endl;
 /*-----------------------------------------------*/
     /* Returning the last error from a runtime call */
     cudaGetLastError();
@@ -150,10 +151,10 @@ int main(int argc, char **argv) {
     cudaFree(d_C);
 
     /* Free the allocated memory on the host */
-    free(h_A);
-    free(h_B);
-    free(hostPtr);
-    free(devicePtr);
+    delete [] h_A;
+    delete [] h_B;
+    delete [] hostPtr;
+    delete [] devicePtr;
 
-    return(EXIT_SUCCESS);
+    return(0);
 }

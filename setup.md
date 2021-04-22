@@ -9,8 +9,8 @@ title: Setup
 {: .prereq}
 
 In this section, we briefly overview the necessary steps for setting up a CUDA development
-environment. At the time of writing this tutorial, **CUDA Toolkit v11.2** is the latest 
-official release. Therefore, this version will be the center of our focus throughout the tutorial.
+environment. At the time of writing this tutorial, **CUDA Toolkit v11.3** is the latest 
+official stable release. Therefore, this version will be the center of our focus throughout the tutorial.
 
 ## 1. Linux
 
@@ -131,10 +131,6 @@ consider the following set of actions.
 >    
 >    where `<gnu-compiler>` placeholder should be replaced with either `gcc` or `g++`.
 > 
-> - Download the NVIDIA CUDA Toolkit from [here](https://developer.nvidia.com/cuda-downloads).
->   Once the CUDA Toolkit installer is downloaded, follow the instructions
->   [here](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile) based on the type of 
->   your Linux OS platform.
 {: .prereq}
 
 > ## **Known Issues**:
@@ -144,6 +140,27 @@ consider the following set of actions.
 > [matrices](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#handle-uninstallation)
 > and follow the instructions provided thereafter.
 {: .callout}
+
+
+> ## Installation
+>
+> - For the latest version of the NVIDIA CUDA Toolkit, download it [here](https://developer.nvidia.com/cuda-downloads),
+> and follow the instructions [here](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile) 
+> based on the type of your Linux OS platform.
+> - Alternatively, you can use [conda](https://conda.io) to install the CUDA compilers and libraries (drivers excluded) from conda-forge:
+>    ~~~
+>    $ conda install -c conda-forge cudatoolkit-dev
+>    ~~~
+>    {: .language-bash}
+> 
+ {: .prereq}
+ 
+> ## **Note**:
+>
+> The nvcc compiler usually does not support the latest version of GCC. Therefore, you might have to revert to an older version of
+> of GCC to ensure proper compatibility. See the [following](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#introduction) for 
+> the latest info on compiler version compatibility.
+{: .discussion}
 
 ## 2. Windows
 
@@ -169,8 +186,7 @@ compilers and Microsoft Visual Studio environments. For further details, see
 > for heterogeneous parallel code development with CUDA. However, NVIDIA still provides
 > support for launching CUDA debugger and profiler application sessions for Mac OS as a host platform.
 >
-> Since the present tutorial is based on the latest
-> version (v11.2.0), the Mac OS will not be the subject of our further consideration.
+> Since the present tutorial is based on version 11, the Mac OS will not be the subject of our further consideration.
 {: .discussion}
 
 {% include links.md %}

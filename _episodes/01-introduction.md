@@ -14,12 +14,14 @@ keypoints:
 - "Heterogeneous parallel programming"
 - "Basic aspects of GPU architecture"
 - "CUDA as a platform and programming model"
+- "GPGPUs and floating point precision"
 ---
 
 > ## Table of Contents
 > - [1. Background](#1-background)
 > - [2. Parallel Programming Paradigms](#2-parallel-programming-paradigms)
 > - [3. CUDA: A Platform for Heterogeneous Parallel Programming](#3-cuda-a-platform-for-heterogeneous-parallel-programming)
+> - [4. CPU vs GPU Performance and Precision](#4-cpu-vs-gpu-performance-and-precision)
 {: .prereq}
 
 ## 1. Background
@@ -79,16 +81,23 @@ instruction-intensive operations in order to improve the overall performance
 compared with both sequential and homogeneous parallel programming models.
 
 To better understand the concept of heterogeneous parallel programming,
-we should introduce the following concepts:
+we will introduce the following concepts from computer networking:
 
-- **Latency**: The duration of an operation from its beginning to its completion expressed in microseconds (*m*s)
-- **Throughput**: The number of operations processed per unit of time expressed in gigaflops (*G*flops), which
-translates into a billion floating-point operations per second.
-- **Bandwidth**: The processed amount of data per unit of time expressed in megabytes per second (*M*B/s) 
-or gigabytes per second (*G*B/s)
+- **Latency**: The duration of an operation from its beginning to its completion expressed in units of time e.g. microseconds (*m*s)
+- **Bandwidth**: The *theoretical* capacity of how much data could be transferred from source to destination per unit of time,
+  commonly expressed in gigabytes per second (*G*B/s) for GPUs  
+- **Throughput**: The *real* measure of how much data is successfully transferred from source to destination per unit of time, 
+expressed in gigaflops (*G*flops) for GPUs, which translates into a billion floating-point operations per second. Therefore, throughput 
+is always less than the bandwidth.
+
+![Figure 0](../fig/pipe.png)
+
+One way of qualitatively understanding the 3 concepts is by visualizing water flowing through a pipe. The water represents "data", and 
+the pipe diameter represents the "bandwidth", while the amount of water flowing through the pipe over a period of time
+represents the "throughput".
 
 Now, let us compare the main architectural differences between CPUs and GPUs
-in order to be able to see the motivation behind heterogeneous parallel computing
+in order to see the motivation behind heterogeneous parallel computing
 in terms of the concepts we just learned, more clearly:
 
 ![Figure 1](../fig/CPU_GPU_comparison.png)
@@ -144,5 +153,18 @@ environment (IDE), *CUDA-GDB* for debugging via command line interface,
 visual and command-line variants of profiling tools for performance analysis, and 
 *CUDA-MEMCHECK* for memory analysis.
 
-{% include links.md %}
+## 4. CPU vs GPU Performance and Precision
 
+The core idea behind GPGPUs is to optimize for throughput instead of latency. However, this does not
+always guarantee faster execution. One of the limiting factors is the degraded performance of double precision floating point
+operations (flops) on GPUs. For instance, consumer GPUs like Nvidia's GTX and RTX series are typically tuned for single precision flops.
+Running computations in double precision with these devices can significantly degrade the performance. Furthermore, GPU 
+devices with compute capability 1.2 and below support single precision only and not all operations in single precision on these GPUs 
+are IEEE 754 accurate. Therefore, it is always recommended to run any GPU computation in the precision that the device is best optimized for.
+
+**-> [!Need to improve and expand on this a bit]**
+
+**-> [!Talk about runtime vs driver API in section 5?]**
+
+
+{% include links.md %}

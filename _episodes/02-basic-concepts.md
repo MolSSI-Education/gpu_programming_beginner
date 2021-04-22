@@ -349,7 +349,10 @@ For more info on error handling, see the more detailed [Error Handling](/04-gpu-
 
 ## 4. Multiple GPUs and Multithreading Bugs
 
-Apart from always checking for errors returned from CUDA API runtime functions, it is a good practice to always
+Apart from always checking for errors returned from CUDA API runtime functions, it is a good practice to always check for
+multiple devices available on the system and then specify which device to run the computations on. To demonstrate this, we're
+going to launch the same "hello world" kernel on multiple cores using [OpenMP](https://www.openmp.org).
+
 The modified `hello.cu` code is shown below.
 
 ~~~

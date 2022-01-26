@@ -16,7 +16,7 @@ __global__ void helloFromGPU() {          /* This function runs on the device */
 int main(int argc, char **argv) {
     helloFromCPU();                       /* Calling from host */
 
-    helloFromGPU<<<1, 8>>>();             /* Calling from device */
+    helloFromGPU<<<1, 1>>>();             /* Calling from device */
 
     cudaDeviceReset();                    /* House-keeping on device */
 

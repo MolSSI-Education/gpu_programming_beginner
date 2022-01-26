@@ -53,7 +53,7 @@ void helloFromCPU(void) {                 /* This function runs on the host */
     printf("Hello World from CPU!\n");  
 }
 
-__global__ void helloFromGPU() {          /* This function runs on the device */
+__global__ void helloFromGPU() {          /* This kernel is launched on the device */
     printf("Hello World from GPU!\n");
 }
 
@@ -62,9 +62,9 @@ __global__ void helloFromGPU() {          /* This function runs on the device */
 int main(int argc, char **argv) {
     helloFromCPU();                       /* Calling from host */
 
-    helloFromGPU<<<1, 8>>>();             /* Calling from device */
+    helloFromGPU<<<1, 1>>>();             /* Launching from the host */
 
-    cudaDeviceReset();                    /* House-keeping on device */
+    cudaDeviceReset();                    /* House-keeping on the device */
 
     return(EXIT_SUCCESS);
 }
@@ -93,31 +93,23 @@ will print the following output
 ~~~
 Hello World from CPU!
 Hello World from GPU!
-Hello World from GPU!
-Hello World from GPU!
-Hello World from GPU!
-Hello World from GPU!
-Hello World from GPU!
-Hello World from GPU!
-Hello World from GPU!
 ~~~
 {: .output}
 
-The first line in the output has been printed by the CPU and the next 8 lines 
-have been printed by GPU. Readers with sharp eyes might get curious about a possible
-relation between the number of lines printed by GPU and the number 8, in the 
-triple angular brackets in `helloFromGPU<<...>>()` kernel function call. 
-We are going to find out this relation shortly.
+The first line in the output has been printed by the CPU and the next one
+by the GPU. The meaining of the two numbers within the triple angular
+brackets in the `helloFromGPU<<...>>()` kernel launch will be discussed
+shortly in Subsec. [2.2. Kernel Execution in CUDA](#22-kernel-execution-in-cuda).
 
 ## 2. Structure of a CUDA Program
 
-As mentioned earlier, within the CUDA programming model, each program has 
+As mentioned earlier, within the CUDA programming model, each program has
 host and device sections. Let us review our code and analyze it piece by piece
-to distinguish the host and device sections.
-Just like a simple code written in C, we include necessary headers using 
-[*preprocessor directives*](https://en.cppreference.com/w/c/preprocessor) 
-to be able to access the standard libraries that provide
-us with functions/macros we need to construct our application.
+to distinguish the host and device sections. Just like a simple code written in
+C or C++, we include necessary header files
+using [*preprocessor directives*](https://en.cppreference.com/w/c/preprocessor)
+to be able to access the standard libraries that provide us with functions/macros
+we need to construct our application.
 
 ~~~
 #include <stdlib.h>

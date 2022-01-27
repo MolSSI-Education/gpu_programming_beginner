@@ -243,7 +243,11 @@ GPU Prints Idx: 3
 {: .output}
 
 The output illustrates that the local thread indices (`threadIdx.x`) on the GPU restart
-to zero going form one thread block to the next.
+to zero going form one thread block to the next. In the schematics shown below, the thread and block
+indexing patterns for each grid of block is demonstrated for a case where 15 threads are equally
+distributed among three blocks.
+
+![Figure 2](../fig/1D-block.png)
 
 > ## Note:
 > Each block has a unique zero-based index in a grid and each thread has a unique zero-based
@@ -255,7 +259,7 @@ translate the local thread indices to their global variant. As such, we use the 
 formula for this conversion
 
 $$ \tag{1}\label{EQ:LOCALTOGLOBAL}
-\text{globalThreadIdx}.q = \text{threadIdx}.q + \text{blockIdx}.q * \text{blockDim}.q \qquad \quad \text{where} \qquad q = x, y, z
+(\text{globalThreadIdx})_q = \text{threadIdx}.q + \text{blockIdx}.q \times \text{blockDim}.q \qquad \quad \text{where} \qquad q = x, y, z
 $$
 
 We now employ Eq. \ref{EQ:LOCALTOGLOBAL} in our code to convert the local thread indices
@@ -489,7 +493,7 @@ CUDA exposes a two-level thread hierarchy, consisting of **block of threads** an
 **grids of blocks**, to the programmer in order to allow for thread organization
 on GPU devices.
 
-![Figure 2](../fig/grid_blocks.png)
+![Figure 3](../fig/grid_blocks.png)
 
 As figure demonstrates, each grid is often constructed from many thread blocks.
 Each block is a group of threads invoked by kernel to perform a specific task

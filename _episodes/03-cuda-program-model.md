@@ -23,21 +23,15 @@ keypoints:
 </script>
 
 > ## Table of Contents
-> - [1. Thread Hierarchy in CUDA](#1-thread-hierarchy-in-cuda)
-> - [2. Basics of the Device Memory Management in CUDA](#2-basics-of-the-device-memory-management-in-cuda)
-> - [3. Summation of Arrays on GPUs](#3-summation-of-arrays-on-gpus)
->   - [3.1. Header Files and Function Definitions](#31-header-files-and-function-definitions)
->   - [3.2. Structure of the Program](#32-structure-of-the-program)
+> - [1. Parallelizing Loops: A Prelude to Thread Hierarchy](#1-parallelizing-loops-a-prelude-to-thread-hierarchy)
+>   - [1.1. Monolithic Kernels](#11-monolithic-kernels)
+>   - [1.2. Grid-Stride Loops](#12-grid-stride-loops)
+> - [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
+> - [3. Basics of the Device Memory Management in CUDA](#3-basics-of-the-device-memory-management-in-cuda)
+> - [4. Summation of Arrays on GPUs](#4-summation-of-arrays-on-gpus)
+>   - [4.1. Header Files and Function Definitions](#41-header-files-and-function-definitions)
+>   - [4.2. Structure of the Program](#42-structure-of-the-program)
 {: .prereq}
-
-- [1. Parallelizing Loops: A Prelude to Thread Hierarchy](#1-parallelizing-loops-a-prelude-to-thread-hierarchy)
-  - [1.1. Monolithic Kernels](#11-monolithic-kernels)
-  - [1.2. Grid-Stride Loops](#12-grid-stride-loops)
-- [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
-- [3. Basics of the Device Memory Management in CUDA](#3-basics-of-the-device-memory-management-in-cuda)
-- [4. Summation of Arrays on GPUs](#4-summation-of-arrays-on-gpus)
-  - [4.1. Header Files and Function Definitions](#41-header-files-and-function-definitions)
-  - [4.2. Structure of the Program](#42-structure-of-the-program)
 
 Our [Hello World example]({{site.baseurl}}{% link _episodes/02-basic-concepts.md %}#1-writing-our-first-cuda-program)
 from previous lesson lacks two important aspects of a CUDA program that are crucial
@@ -265,7 +259,7 @@ $$
 We now employ Eq. \ref{EQ:LOCALTOGLOBAL} in our code to convert the local thread indices
 to their global variant. After copying and pasting the following code block in a new text
 file, save it as **gpu_printer_mb_global.cu**.
- 
+
 
 ```
 #include <stdlib.h>

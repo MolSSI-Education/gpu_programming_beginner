@@ -13,7 +13,9 @@ layout: reference
 4. [Storti, D.; Yurtoglu, M. **CUDA for Engineers: An Introduction to High-Performance Parallel Computing** (Addison-Wesley Professional, New York NY, USA 2015), ISBN-13: 978-0134177410](https://www.pearson.com/us/higher-education/program/Storti-CUDA-for-Engineers-An-Introduction-to-High-Performance-Parallel-Computing/PGM4858.html)
 
 5. [Han, J.; Sharma, B. **Learn CUDA Programming** (Packt Publishing Ltd., Birmingham, UK 2019) ISBN: 9781788996242](https://www.packtpub.com/product/learn-cuda-programming/9781788996242)
-                                                                                                                                                                                                   
+
+6. [Harris, M. **CUDA Pro Tip: Write Flexible Kernels with Grid-Stride Loops** (NVIDIA Corporation 2013) URL:https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/ (accessed on Jan. 25, 2022)](https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops)
+   
 ## Glossary
 
 {% include links.md %}

@@ -59,8 +59,12 @@ extensions = [
     'sphinx_design',
     'sphinx_copybutton',
     'myst_parser',
-    'sphinx_togglebutton'
+    'sphinx_togglebutton',
+    'sphinx.ext.autosectionlabel'
 ]
+
+# Make sure the target is unique
+autosectionlabel_prefix_document = True
 
 autosummary_generate = True
 napoleon_google_docstring = False

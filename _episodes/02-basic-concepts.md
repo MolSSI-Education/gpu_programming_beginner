@@ -106,7 +106,7 @@ Hello World from GPU!
 The first line in the output has been printed by the CPU and the next one
 by the GPU. The meaining of the two numbers within the triple angular
 brackets in the `helloFromGPU<<...>>()` kernel launch will be discussed
-shortly in Subsec. [2.2. Kernel Execution in CUDA](#22-kernel-execution-in-cuda).
+shortly in Subsec. {ref}`02-basic-concepts:2.2. Kernel Execution in CUDA`.
 
 ## 2. Structure of a CUDA Program
 

@@ -40,7 +40,7 @@ GPU architectures are often a part of the following production line families:
 + **TX1** (Compute Capability = 5.3) Maxwell G
 + **X1** (Compute Capability = 5.3) Tegra GPU -->
 
-As detailed in the [Software/Hardware Specifications]({{ site.baseurl }}{% link index.md %}#sh-specifications)
+As detailed in the [Software/Hardware Specifications](index)
 section, we will use two CUDA-enabled GPU devices from the GeForce family 
 with Kepler and Turing micro-architectures throughout this tutorial.
 
@@ -135,8 +135,6 @@ programs, including: GPU management tools, *NVIDIA Nsight* integrated developmen
 environment (IDE), *CUDA-GDB* for debugging via command line interface, 
 visual and command-line variants of profiling tools for performance analysis, and 
 *CUDA-MEMCHECK* for memory analysis.
-
-{% include links.md %}
 
 ````{admonition} Key Points
 :class: key

@@ -34,7 +34,7 @@ consider the following set of actions.
 `````{admonition} Pre-installation Steps
 :class: alert
 
- - Make sure your system has a CUDA-capable graphics processing unit (GPU) device.
+ * Make sure your system has a CUDA-capable graphics processing unit (GPU) device.
  There are multiple ways to do this task:
 
     &#9824; For a minimalist, a simple bash command will do the trick
@@ -67,6 +67,7 @@ brw-rw---- 1 root disk 259,   4 Jan 10 09:43 /dev/nvme0n1p4
 Helpful information about active hardware on the host machine (including graphics card) can be obtained from
 **About This Computer** panel which can be accessed from the top-right gear icon at the top 
 corner of the Ubuntu (Unity) desktop screen or through **Settings/Details** icon that can be looked up from the search bar.
+
 &#9827; NVIDIA website provides [tables](https://developer.nvidia.com/cuda-gpus) of CUDA-enabled GPUs along side
 their [***compute capabilities***](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capability).
 Compute capability (or *streaming multiprocessor version*) consisting of a version number (M.N) where M and N stand for 
@@ -113,7 +114,7 @@ CUDA-enabled GPU device name (GeForce GTX 1650). Since multiple GPUs might be
 available on each machine, applications such as `nvidia-smi` often adopt
 integer indices, starting from zero, for referencing the GPU devices. 
 
-- Because the present tutorial is based on the CUDA C/C++ programming language extensions,
+* Because the present tutorial is based on the CUDA C/C++ programming language extensions,
 check to see if the version of Linux on the host machine is supported by CUDA.
 To do so, take a
 glance at [this](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#system-requirements) page.
@@ -129,7 +130,7 @@ $ <gnu-compiler> --version
    
 where `<gnu-compiler>` placeholder should be replaced with either `gcc` or `g++`.
 
-- Download the NVIDIA CUDA Toolkit from [here](https://developer.nvidia.com/cuda-downloads).
+* Download the NVIDIA CUDA Toolkit from [here](https://developer.nvidia.com/cuda-downloads).
 Once the CUDA Toolkit installer is downloaded, follow the instructions
 [here](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile) based on the type of 
 your Linux OS platform.
@@ -153,7 +154,7 @@ compilers and Microsoft Visual Studio environments. For further details, see
 [here](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/#system-requirements).
 
 `````{admonition} WSL Users
-After following directions in the [Pre-installation Steps](#pre-installation-steps) section, 
+After following directions in the Pre-installation Steps section, 
 the *Windows Subsystem for Linux (WSL)* users can refer to CUDA Toolkit
 [documentation](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#wsl-installation)
 for setting up CUDA Toolkit and following the instructions.
@@ -162,7 +163,7 @@ for setting up CUDA Toolkit and following the instructions.
 ## 3. Mac OS
 
 ```{admonition} Note
-:class: note
+:class: attention
 
 CUDA Toolkit v10.2.x is the last release that supports Mac OS as a target platform
 for heterogeneous parallel code development with CUDA. However, NVIDIA still provides

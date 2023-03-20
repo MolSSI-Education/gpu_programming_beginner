@@ -1,0 +1,783 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Setup &#8212; molssi_gpu_programming  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FHKVGE8HKZ"></script>
+    <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){ dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', 'G-FHKVGE8HKZ');
+            </script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'setup';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Introduction" href="01-introduction.html" />
+    <link rel="prev" title="Fundamentals of Heterogeneous Parallel Programming with CUDA C/C++" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/molssi_main_logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/molssi_main_logo_inverted_white.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+    <p class="title logo__title">Fundamentals of GPU Programming</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Setup
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="01-introduction.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="02-basic-concepts.html">
+                        Basic Concepts in CUDA Programming
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="03-cuda-program-model.html">
+                        CUDA Programming Model
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="04-gpu-compilation-model.html">
+                        CUDA GPU Compilation Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="05-cuda-execution-model.html">
+                        CUDA Execution Model
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://molssi.org">
+                    MolSSI
+                  </a>
+                </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MolSSI-Education/gpu_programming_beginner" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/MolSSI_NSF" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        Setup
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="01-introduction.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="02-basic-concepts.html">
+                        Basic Concepts in CUDA Programming
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="03-cuda-program-model.html">
+                        CUDA Programming Model
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="04-gpu-compilation-model.html">
+                        CUDA GPU Compilation Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="05-cuda-execution-model.html">
+                        CUDA Execution Model
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://molssi.org">
+                    MolSSI
+                  </a>
+                </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MolSSI-Education/gpu_programming_beginner" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/MolSSI_NSF" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Setup</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="setup">
+<h1>Setup<a class="headerlink" href="#setup" title="Permalink to this heading">#</a></h1>
+<p>In this section, we briefly overview the necessary steps for setting up a CUDA development
+environment. At the time of writing this tutorial, <strong>CUDA Toolkit v11.2</strong> is the latest
+official release. Therefore, this version will be the center of our focus throughout the tutorial.</p>
+<section id="linux">
+<h2>1. Linux<a class="headerlink" href="#linux" title="Permalink to this heading">#</a></h2>
+<p>Depending on the flavor of the Linux OS on the host machine, NVIDIA offers three
+options for installation of CUDA Toolkit: <em>RPM</em>, <em>Debian</em> or <em>Runfile</em> packages.
+Each of these packages are provided as <em>Local</em> or <em>Network</em> installers.
+Network installers are ideal for users with high-speed internet connection and
+low local disk storage capacity. Network installers also allow users to
+download only those applications from CUDA Toolkit that they need. Local installers,
+on the other hand, offer a stand-alone large-size installer file that should be downloaded
+to the host machine once. Future installations using this installer file will not require
+any internet connection. Runfiles are Local installers but depending on the type of
+Linux OS on the host machine, RPM and Debian packages can be Local or Network installers.</p>
+<p>Managing the dependencies and prerequisites in various operating systems can be
+very different depending on the chosen installation method. In comparison with
+Debian and RPM packages, Runfiles offer a cleaner and more independent method
+with more control over the installation process. Meanwhile, the installed CUDA
+Toolkit and its dependent software will not automatically update. On the other hand,
+Debian and RPM packages provide a native and straightforward way to install the CUDA
+Toolkit. However, resolving dependencies, conflicts and broken packages will often
+be an inseparable part of the process. Take a look at CUDA Toolkit
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html#linux">documentation</a>
+for further information and details on installers.</p>
+<p>Before spending time on the installation of the CUDA Toolkit on your Linux machine,
+consider the following set of actions.</p>
+<div class="alert admonition">
+<p class="admonition-title">Pre-installation Steps</p>
+<ul>
+<li><p>Make sure your system has a CUDA-capable graphics processing unit (GPU) device.
+There are multiple ways to do this task:</p>
+<p>♠ For a minimalist, a simple bash command will do the trick</p>
+</li>
+</ul>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-bash" for="sd-tab-item-0">
+BASH</label><div class="sd-tab-content docutils">
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>ls<span class="w"> </span>-l<span class="w"> </span>/dev/nv*<span class="w">   </span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>if the system is armed with a GPU accelerator device, a typical output of the
+command above would be:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-1" name="sd-tab-set-1" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-1">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">crw-rw-rw- 1 root root 195,   0 Jan 10 09:43 /dev/nvidia0        &lt;--   This line corresponds to your active GPU accelerator device</span>
+<span class="go">crw-rw-rw- 1 root root 195, 255 Jan 10 09:43 /dev/nvidiactl</span>
+<span class="go">crw-rw-rw- 1 root root 195, 254 Jan 10 09:43 /dev/nvidia-modeset</span>
+<span class="go">crw-rw-rw- 1 root root 236,   0 Jan 10 09:43 /dev/nvidia-uvm</span>
+<span class="go">crw-rw-rw- 1 root root 236,   1 Jan 10 09:43 /dev/nvidia-uvm-tools</span>
+<span class="go">crw------- 1 root root 243,   0 Jan 10 09:43 /dev/nvme0</span>
+<span class="go">brw-rw---- 1 root disk 259,   0 Jan 10 09:43 /dev/nvme0n1</span>
+<span class="go">brw-rw---- 1 root disk 259,   1 Jan 10 09:43 /dev/nvme0n1p1</span>
+<span class="go">brw-rw---- 1 root disk 259,   2 Jan 10 09:43 /dev/nvme0n1p2</span>
+<span class="go">brw-rw---- 1 root disk 259,   3 Jan 10 09:43 /dev/nvme0n1p3</span>
+<span class="go">brw-rw---- 1 root disk 259,   4 Jan 10 09:43 /dev/nvme0n1p4</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Helpful information about active hardware on the host machine (including graphics card) can be obtained from
+<strong>About This Computer</strong> panel which can be accessed from the top-right gear icon at the top
+corner of the Ubuntu (Unity) desktop screen or through <strong>Settings/Details</strong> icon that can be looked up from the search bar.
+♣ NVIDIA website provides <a class="reference external" href="https://developer.nvidia.com/cuda-gpus">tables</a> of CUDA-enabled GPUs along side
+their <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capability"><em><strong>compute capabilities</strong></em></a>.
+Compute capability (or <em>streaming multiprocessor version</em>) consisting of a version number (M.N) where M and N stand for
+major and minor digits, respectively, specifies features that the GPU hardware can support. GPU devices with the same major
+number (M) belong to the same core architecture: 8 for devices based on the <em>Ampere</em> architecture, 7 for devices based
+on the <em>Volta</em> architecture, 6 for devices based on the <em>Pascal</em> architecture, 5 for devices based on the <em>Maxwell</em>
+architecture, 3 for devices based on the <em>Kepler</em> architecture, 2 for devices based on the <em>Fermi</em> architecture, and 1
+for devices based on the <em>Tesla</em> architecture. Older CUDA-enabled GPUs (legacy GPUs) are listed
+<a class="reference external" href="https://developer.nvidia.com/cuda-legacy-gpus">here</a>.</p>
+<p>♦ The <em>NVIDIA System Management Interface</em> (<code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>) is a command-line tool which is derived
+from <em>NVIDIA Management Library (NVML)</em> and designed to provide control and monitoring
+capabilities over NVIDIA CUDA-enabled GPU devices. <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code> ships with NVIDIA GPU display drivers
+on Linux and some versions of Microsoft Windows. For further details, see
+<a class="reference external" href="https://developer.nvidia.com/nvidia-system-management-interface">here</a>. In order to run <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code>,
+simply call it through a terminal:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-2" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-shell" for="sd-tab-item-2">
+SHELL</label><div class="sd-tab-content docutils">
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvidia-smi<span class="w">   </span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>A typical output would look like:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-3" name="sd-tab-set-3" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-3">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">   +-----------------------------------------------------------------------------+</span>
+<span class="go">   | NVIDIA-SMI 455.38       Driver Version: 455.38       CUDA Version: 11.2     |</span>
+<span class="go">   |-------------------------------+----------------------+----------------------+</span>
+<span class="go">   | GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |</span>
+<span class="go">   | Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |</span>
+<span class="go">   |                               |                      |               MIG M. |</span>
+<span class="go">   |===============================+======================+======================|</span>
+<span class="go">   |   0  GeForce GTX 1650    Off  | 00000000:01:00.0 Off |                  N/A |</span>
+<span class="go">   | N/A   42C    P8     2W /  N/A |    438MiB /  3911MiB |     10%      Default |</span>
+<span class="go">   |                               |                      |                  N/A |</span>
+<span class="go">   +-------------------------------+----------------------+----------------------+</span>
+<span class="go">   ...                                                                               </span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>where unnecessary information from the output are replaced with ellipses.
+The result shows the driver version (455.38), CUDA version (11.2), and the
+CUDA-enabled GPU device name (GeForce GTX 1650). Since multiple GPUs might be
+available on each machine, applications such as <code class="docutils literal notranslate"><span class="pre">nvidia-smi</span></code> often adopt
+integer indices, starting from zero, for referencing the GPU devices.</p>
+<ul class="simple">
+<li><p>Because the present tutorial is based on the CUDA C/C++ programming language extensions,
+check to see if the version of Linux on the host machine is supported by CUDA.
+To do so, take a
+glance at <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#system-requirements">this</a> page.
+In order to verify the availability of GNU compilers (gcc and g++) on the system, try</p></li>
+</ul>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-4" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-shell" for="sd-tab-item-4">
+SHELL</label><div class="sd-tab-content docutils">
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>&lt;gnu-compiler&gt;<span class="w"> </span>--version
+</pre></div>
+</div>
+</div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">&lt;gnu-compiler&gt;</span></code> placeholder should be replaced with either <code class="docutils literal notranslate"><span class="pre">gcc</span></code> or <code class="docutils literal notranslate"><span class="pre">g++</span></code>.</p>
+<ul class="simple">
+<li><p>Download the NVIDIA CUDA Toolkit from <a class="reference external" href="https://developer.nvidia.com/cuda-downloads">here</a>.
+Once the CUDA Toolkit installer is downloaded, follow the instructions
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#runfile">here</a> based on the type of
+your Linux OS platform.</p></li>
+</ul>
+</div>
+<div class="alert admonition">
+<p class="admonition-title">Known Issues</p>
+<p>It is a very common issue that a previously installed version of CUDA conflicts with a
+newer version that is intended to be installed. In order to resolve the conflict, check the compatibility
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#handle-uninstallation">matrices</a>
+and follow the instructions provided thereafter</p>
+</div>
+</section>
+<section id="windows">
+<h2>2. Windows<a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h2>
+<p>Basic instructions on using Local or Network installers can be found on CUDA Toolkit’s
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-quick-start-guide/index.html">documentation</a>.
+NVIDIA CUDA Toolkit supports specific version combinations of Microsoft Windows OSs,
+compilers and Microsoft Visual Studio environments. For further details, see
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/#system-requirements">here</a>.</p>
+<div class="admonition-wsl-users admonition">
+<p class="admonition-title">WSL Users</p>
+<p>After following directions in the <a class="reference internal" href="#pre-installation-steps"><span class="xref myst">Pre-installation Steps</span></a> section,
+the <em>Windows Subsystem for Linux (WSL)</em> users can refer to CUDA Toolkit
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#wsl-installation">documentation</a>
+for setting up CUDA Toolkit and following the instructions.</p>
+</div>
+</section>
+<section id="mac-os">
+<h2>3. Mac OS<a class="headerlink" href="#mac-os" title="Permalink to this heading">#</a></h2>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>CUDA Toolkit v10.2.x is the last release that supports Mac OS as a target platform
+for heterogeneous parallel code development with CUDA. However, NVIDIA still provides
+support for launching CUDA debugger and profiler application sessions for Mac OS as a host platform.</p>
+<p>Since the present tutorial is based on the latest
+version (v11.2.0), the Mac OS will not be the subject of our further consideration.</p>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Fundamentals of Heterogeneous Parallel Programming with CUDA C/C++</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="01-introduction.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Introduction</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#linux">1. Linux</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#windows">2. Windows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#mac-os">3. Mac OS</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/setup.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  
+
+
+
+  
+  
+  
+  
+  
+  
+  
+
+
+<div class="row h-10">
+    <div class="col-2">
+        <a href="https://molssi.org/" target="_blank" title="Go to MolSSI in a new tab">
+            <img src="_static/molssi_main_logo.png" class="logo__image only-light footer_logo" alt="Logo image">
+            <img src="_static/molssi_main_logo_inverted_white.png" class="logo__image only-dark footer_logo" alt="Logo image">
+        </a>
+    </div>
+    <div class="col-8">
+        <p> &copy; Copyright 2019-2023 <a href="https://molssi.org/">The Molecular Sciences Software Institute</a></p>
+        <p>Funded by the National Science Foundation 
+          <a href="https://nsf.gov/awardsearch/showAward?AWD_ID=1547580">OAC-1547580</a> and 
+          <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2136142">CHE-2136142.</a></p>
+ 
+        
+        <p class="sphinx-version">
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+        </p>
+        
+
+        <p class="theme-version">
+        Built with a customized <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.1.
+        </p>
+
+    </div>
+    <div class="col-2">
+        <a href="https://nsf.gov/" target="_blank" title="Go to the NSF in a new tab">
+            <img src="_static/nsf.png" class="footer_logo" alt="The NSF">
+          </a>
+    </div>
+</div></div>
+      
+    </div>
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

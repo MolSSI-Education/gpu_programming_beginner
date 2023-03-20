@@ -1,0 +1,979 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>CUDA Execution Model &#8212; molssi_gpu_programming  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FHKVGE8HKZ"></script>
+    <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){ dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', 'G-FHKVGE8HKZ');
+            </script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '05-cuda-execution-model';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="CUDA GPU Compilation Model" href="04-gpu-compilation-model.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/molssi_main_logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/molssi_main_logo_inverted_white.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+    <p class="title logo__title">Fundamentals of GPU Programming</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="setup.html">
+                        Setup
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="01-introduction.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="02-basic-concepts.html">
+                        Basic Concepts in CUDA Programming
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="03-cuda-program-model.html">
+                        CUDA Programming Model
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="04-gpu-compilation-model.html">
+                        CUDA GPU Compilation Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        CUDA Execution Model
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://molssi.org">
+                    MolSSI
+                  </a>
+                </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MolSSI-Education/gpu_programming_beginner" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/MolSSI_NSF" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="setup.html">
+                        Setup
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="01-introduction.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="02-basic-concepts.html">
+                        Basic Concepts in CUDA Programming
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="03-cuda-program-model.html">
+                        CUDA Programming Model
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="04-gpu-compilation-model.html">
+                        CUDA GPU Compilation Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        CUDA Execution Model
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://molssi.org">
+                    MolSSI
+                  </a>
+                </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MolSSI-Education/gpu_programming_beginner" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/MolSSI_NSF" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">CUDA Execution Model</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="cuda-execution-model">
+<h1>CUDA Execution Model<a class="headerlink" href="#cuda-execution-model" title="Permalink to this heading">#</a></h1>
+<div class="overview admonition">
+<p class="admonition-title">Overview</p>
+<p>Questions:</p>
+<ul class="simple">
+<li><p>What is CUDA execution model?</p></li>
+<li><p>How insights from GPU architecture helps CUDA programmers to write more efficient software?</p></li>
+<li><p>What are streaming multiprocessors and thread warps?</p></li>
+<li><p>What is profiling and why is it important to a programmer?</p></li>
+<li><p>How many profiling tools for CUDA programming are available and which one(s) should I choose?</p></li>
+</ul>
+<p>Objectives:</p>
+<ul class="simple">
+<li><p>Understanding the fundamentals of the CUDA execution model</p></li>
+<li><p>Establishing the importance of knowledge from GPU architecture and its impacts on the efficiency of a CUDA program</p></li>
+<li><p>Learning about the building blocks of GPU architecture: streaming multiprocessors and thread warps</p></li>
+<li><p>Mastering the basics of profiling and becoming proficient in adopting profiling tools in CUDA programming</p></li>
+</ul>
+</div>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<section id="gpu-architecture">
+<h2>1. GPU Architecture<a class="headerlink" href="#gpu-architecture" title="Permalink to this heading">#</a></h2>
+<p>We previously mentioned that the sole knowledge of the semantics in CUDA
+programming will not probably be enough for achieving the best possible
+performance in practical applications. Today’s smart compilers
+can largely mitigate this issue by optimizing our codes. Nevertheless,
+writing a CUDA program based on insights about the GPU architecture
+and limitations of the device in use, offers significant advantages
+over blind coding and allows for the best possible thread organization
+and kernel configuration to maximize the performance.
+As such, CUDA execution model provides a logical view of thread concurrency
+within the SIMT framework and bridges between the <strong>streaming multiprocessors (SMs)</strong>,
+as the central building block of GPU architecture, and the improvement of memory access
+and instruction throughput.</p>
+<p>The SMs partition the thread blocks into the units of 32 consecutive threads
+called <strong>warps</strong> which can be scheduled for execution by <em>warp schedulers</em>.
+Within a warp, the consecutive threads in blocks have unique
+IDs and are indexed in ascending order starting from 0.
+For a given thread block, the number of warps can be calculated using the
+following formula</p>
+<p>$$ \tag{1}\label{EQ:WARPPERBLOCK}
+\text{WarpsPerBlock} = \bigg\lceil\frac{\text{threadsPerBlock}}{\text{warpSize}}\bigg\rceil,
+$$</p>
+<p>where $$ \lceil \cdot \rceil $$ in Eq. \eqref{EQ:WARPPERBLOCK} is the
+<a class="reference external" href="https://dlmf.nist.gov/front/introduction#common.p1.t1.r18">ceiling function</a>
+and <em>threadsPerBlock</em> is defined as</p>
+<p>$$ \tag{2}\label{EQ:THRDPERBLOCK}
+\text{threadsPerBlock} = \sum_q \text{block.}q   \qquad \quad \text{where} \qquad    q \in {x, y, z }
+$$</p>
+<p>According to Eqs. \eqref{EQ:WARPPERBLOCK} and \eqref{EQ:THRDPERBLOCK},
+a warp is never distributed between different thread blocks.
+CUDA manages valuable and limited resources such as registers
+and shared memory on SMs and distributes them among all threads.
+The limitations of these resources affects the number of active warps
+that can be created and the level of SIMT parallelism that
+can be realized in a particular SM as a result. As such, in order to
+maximize the GPU utilization and achieve the best performance through
+increasing the number of active warps with respect to the limited
+resources, a proper thread organization and execution configuration
+would be of imperative. For example, if we organize a $4 \times 20$
+array of threads in a 2-dimensional block (total of 80 threads/block)
+using CUDA on the software side, the device will allocate 3 warps for
+this block on the hardware side resulting in the allocation of resources
+targeted for supporting 96 threads. As such, 16 threads in one of the
+three warps remain inactive while still consuming (wasting) the allocated resources.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>Although from the logical point of view, threads
+can be organized within 1-, 2- and 3-dimensional blocks,
+from hardware perspective, all threads can only exist in a one-dimensional
+world.</p>
+</div>
+<p>All threads in a warp execute the same instruction on their own private data.
+Therefore, maximum efficiency can be realized if all 32 threads are on
+the same execution path. However, the execution of different instructions
+(different execution paths) by threads <em>within a warp</em> causes
+<strong>warp divergence</strong>. The diverged threads within a warp will execute
+each execution path in the serial mode (loss of parallelism) and disable those
+threads that took a different execution path. As such, warp divergence should be
+avoided at all costs because it results in serious performance deteriorations.
+Note that warp divergence can only happen among the threads of the same warp and
+would be irrelevant if threads of different warps are considered.
+This fact about the relation between GPU architecture and software performance
+should provide a hint regarding the importance of having some knowledge about the
+hardware aspects and CUDA execution model.</p>
+<p>Let us look at the main parts of a Fermi SM from a logical perspective
+to be able to gain some insights about the hardware micro-architectures
+in NVDIA GPU devices.</p>
+<img alt="_images/SM.png" class="align-center" src="_images/SM.png" />
+<p>With each architecture release, NVIDIA has attempted to introduce new technological
+breakthroughs or major improvements over predecessor models. Therefore, although
+the essential parts of the Fermi architecture illustrated above remains somewhat
+similar across different architectures, each architecture might offer a very different
+hardware design for its SMs. For example, in
+<a class="reference external" href="https://www.nvidia.com/en-us/design-visualization/technologies/turing-architecture/">Turing SM</a>
+series, 16 trillion concurrent floating-point operations and integer operations per second are
+supported. Turing also features a unified architecture for enhanced shared memory, L1, and
+texture memory cache. Tensor core processors in Turing architecture accelerate
+deep learning training and inference up to 500 trillion tensor operations per second.
+Finally, the evolutionary real-time ray tracing (RT) core performance in Turing architecture
+was improved by about 8 times over its predecessor architecture, Pascal.</p>
+</section>
+<section id="profiling-tools">
+<h2>2. Profiling Tools<a class="headerlink" href="#profiling-tools" title="Permalink to this heading">#</a></h2>
+<p>The profiling tools help CUDA programmers to better understand, analyze and
+find opportunities to improve the performance and efficiency of a CUDA program
+in a systematic way. NVIDIA provides three major tools for profiling a CUDA program:</p>
+<ol class="arabic simple">
+<li><p><strong>NVIDIA Visual Profiler (NVVP)</strong>: A graphical software that provides a timeline for
+analyzing the CPU/GPU execution activities and identifying the optimization opportunities
+for improving the performance of the CUDA program</p></li>
+<li><p><strong>NVIDIA Profiler (NVPROF)</strong>: A command-line-based profiling tool for collecting the profiling
+data and the CUDA-related activities on both CPU and GPU</p></li>
+<li><p><strong>NVIDIA Nsight Tools</strong>: An interactive next-generation kernel profiler tool for CUDA applications</p></li>
+</ol>
+<p>Since both <strong>nvvp</strong> and <strong>nvprof</strong> profilers are going to be deprecated in future CUDA releases,
+NVIDIA recommends <a class="reference external" href="https://docs.nvidia.com/cuda/profiler-users-guide/index.html#migrating-to-nsight-tools">migrating</a>
+to <a class="reference external" href="https://developer.nvidia.com/nsight-systems"><strong>NVIDIA Nsight System</strong></a> and
+<a class="reference external" href="https://developer.nvidia.com/nsight-compute"><strong>NVIDIA Nsight Compute</strong></a> for GPU/CPU sampling,
+and tracing purposes, and GPU kernel profiling, respectively. As such,
+in this tutorial we are going to present a brief overview the basics of
+traditional profilers, nvvp and nvprof. We will adopt the Nsight Compute
+tools in our future intermediate and advanced level tutorials which will
+be based on profiling-driven optimization approaches toward CUDA programming.</p>
+<section id="command-line-nvidia-profiler">
+<h3>2.1. Command-Line NVIDIA Profiler<a class="headerlink" href="#command-line-nvidia-profiler" title="Permalink to this heading">#</a></h3>
+<p>Let us adopt nvprof to analyze the timings in our
+[Summation of Arrays on GPUs]({{site.baseurl}}{% link _episodes/03-cuda-program-model.md %}#3-summation-of-arrays-on-gpus)
+program, which we had broken it down into multiple source files
+in the previous [lesson]({{site.baseurl}}{% link _episodes/04-gpu-compilation-model.md %}#2-compiling-separate-source-files-using-nvcc).
+The nvprof profiler can be easily customized to provide different contents and ways
+of collecting data on various GPU/CPU activities through adopting the
+following <a class="reference external" href="https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvprof-overview">semantics</a></p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-shell" for="sd-tab-item-0">
+SHELL</label><div class="sd-tab-content docutils">
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvprof<span class="w"> </span><span class="o">[</span>options<span class="o">]</span><span class="w"> </span><span class="o">[</span>application<span class="o">]</span><span class="w"> </span><span class="o">[</span>appOptions<span class="o">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Since nvprof can give the time spent on each GPU kernel and CUDA API
+function calls, we will not need to use the <code class="docutils literal notranslate"><span class="pre">chronometer()</span></code> C-based function.
+Therefore, let us comment out or remove those function
+calls and their corresponding print functions from our <em><strong>gpuVectorSum.cu</strong></em>
+source file which should look like the following</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-1" name="sd-tab-set-1" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-1">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cm">/*================================================*/</span>
+<span class="cm">/*================ gpuVectorSum.cu ===============*/</span>
+<span class="cm">/*================================================*/</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;cudaCode.h&quot;</span>
+<span class="k">extern</span><span class="w"> </span><span class="s">&quot;C&quot;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;cCode.h&quot;</span>
+<span class="p">}</span>
+
+<span class="cm">/*************************************************/</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Kicking off %s</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="w">    </span><span class="cm">/* Device setup */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">deviceIdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">deviceIdx</span><span class="p">));</span>
+
+<span class="w">    </span><span class="cm">/* Device properties */</span>
+<span class="w">    </span><span class="n">deviceProperties</span><span class="p">(</span><span class="n">deviceIdx</span><span class="p">);</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* Fixing the vector size to 1 * 2^24 = 16777216 (64 MB) */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">vecSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">24</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecSize</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Vector size: %d floats (%lu MB)</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Memory allocation on the host */</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">devicePtr</span><span class="p">;</span>
+<span class="w">    </span><span class="n">h_A</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">h_B</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">hostPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">devicePtr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Vector initialization on the host */</span>
+<span class="w">    </span><span class="n">dataInitializer</span><span class="p">(</span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">dataInitializer</span><span class="p">(</span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">devicePtr</span><span class="p">,</span><span class="w">  </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Vector summation on the host */</span>
+<span class="w">    </span><span class="n">arraySumOnHost</span><span class="p">(</span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* (Global) memory allocation on the device */</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">d_C</span><span class="p">;</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">float</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">));</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">float</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">));</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">float</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">));</span>
+
+<span class="w">    </span><span class="cm">/* Data transfer from host to device */</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">));</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">));</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">devicePtr</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">));</span>
+
+<span class="w">    </span><span class="cm">/* Organizing grids and blocks */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">numThreadsInBlocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="nf">block</span><span class="w"> </span><span class="p">(</span><span class="n">numThreadsInBlocks</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="n">grid</span><span class="w">  </span><span class="p">((</span><span class="n">vecSize</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Execute the kernel from the host*/</span>
+<span class="w">    </span><span class="n">arraySumOnDevice</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaDeviceSynchronize</span><span class="p">());</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* Returning the last error from a runtime call */</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaGetLastError</span><span class="p">());</span>
+
+<span class="w">    </span><span class="cm">/* Data transfer back from device to host */</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devicePtr</span><span class="p">,</span><span class="w"> </span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyDeviceToHost</span><span class="p">));</span>
+
+<span class="w">    </span><span class="cm">/* Check to see if the array summations on </span>
+<span class="cm">     * CPU and GPU yield the same results </span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">arrayEqualityCheck</span><span class="p">(</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="n">devicePtr</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* Free the allocated memory on the device */</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaFree</span><span class="p">(</span><span class="n">d_A</span><span class="p">));</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaFree</span><span class="p">(</span><span class="n">d_B</span><span class="p">));</span>
+<span class="w">    </span><span class="n">ERRORHANDLER</span><span class="p">(</span><span class="n">cudaFree</span><span class="p">(</span><span class="n">d_C</span><span class="p">));</span>
+
+<span class="w">    </span><span class="cm">/* Free the allocated memory on the host */</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">h_A</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">h_B</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">hostPtr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">devicePtr</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>After re-compiling our code, prepend the bash running command
+with nvprof as follows</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-2" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-shell" for="sd-tab-item-2">
+SHELL</label><div class="sd-tab-content docutils">
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>gpuVectorSum.cu<span class="w"> </span>cCode.c<span class="w"> </span>cudaCode.cu<span class="w"> </span>-o<span class="w"> </span>gpuVectorSum
+$<span class="w"> </span>nvprof<span class="w"> </span>./gpuVectorSum
+</pre></div>
+</div>
+</div>
+</div>
+<p>The resulting output will be similar to the following</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-3" name="sd-tab-set-3" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-3">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">Kicking off ./test</span>
+
+<span class="go">==5906== NVPROF is profiling process 5906, command: ./test</span>
+<span class="go">GPU device GeForce GTX 1650 with index (0) is set!</span>
+
+<span class="go">Vector size: 16777216 floats (64 MB)</span>
+
+<span class="go">Arrays are equal.</span>
+
+<span class="go">==5906== Profiling application: ./test</span>
+<span class="go">==5906== Profiling result:</span>
+<span class="go">            Type  Time(%)      Time     Calls       Avg       Min       Max  Name</span>
+<span class="go"> GPU activities:   71.57%  36.369ms         3  12.123ms  12.075ms  12.160ms  [CUDA memcpy HtoD]</span>
+<span class="go">                   24.93%  12.669ms         1  12.669ms  12.669ms  12.669ms  [CUDA memcpy DtoH]</span>
+<span class="go">                    3.50%  1.7770ms         1  1.7770ms  1.7770ms  1.7770ms  arraySumOnDevice(float*, float*, float*, int)</span>
+<span class="go">      API calls:   78.54%  196.20ms         3  65.401ms  190.15us  195.82ms  cudaMalloc</span>
+<span class="go">                   19.84%  49.555ms         4  12.389ms  12.210ms  12.840ms  cudaMemcpy</span>
+<span class="go">                    0.74%  1.8394ms         1  1.8394ms  1.8394ms  1.8394ms  cudaDeviceSynchronize</span>
+<span class="go">                    0.24%  591.60us         1  591.60us  591.60us  591.60us  cudaGetDeviceProperties</span>
+<span class="go">                    0.23%  570.08us       101  5.6440us     495ns  254.44us  cuDeviceGetAttribute</span>
+<span class="go">                    0.20%  490.82us         3  163.61us  146.21us  195.84us  cudaFree</span>
+<span class="go">                    0.16%  387.42us         1  387.42us  387.42us  387.42us  cuDeviceTotalMem</span>
+<span class="go">                    0.04%  110.59us         1  110.59us  110.59us  110.59us  cuDeviceGetName</span>
+<span class="go">                    0.01%  26.566us         1  26.566us  26.566us  26.566us  cudaLaunchKernel</span>
+<span class="go">                    0.00%  9.2890us         1  9.2890us  9.2890us  9.2890us  cuDeviceGetPCIBusId</span>
+<span class="go">                    0.00%  9.1680us         1  9.1680us  9.1680us  9.1680us  cudaSetDevice</span>
+<span class="go">                    0.00%  5.6390us         3  1.8790us     686ns  4.2030us  cuDeviceGetCount</span>
+<span class="go">                    0.00%  3.5500us         2  1.7750us     550ns  3.0000us  cuDeviceGet</span>
+<span class="go">                    0.00%  1.5830us         1  1.5830us  1.5830us  1.5830us  cuDeviceGetUuid</span>
+<span class="go">                    0.00%     401ns         1     401ns     401ns     401ns  cudaGetLastError</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The output is a mixture of C-based <code class="docutils literal notranslate"><span class="pre">printf()</span></code> function results and
+what nvprof has printed. In this output, <code class="docutils literal notranslate"><span class="pre">==5906==</span></code>, shows the process
+ID (PID) which is assigned by the operating system to the application’s
+execution. The <code class="docutils literal notranslate"><span class="pre">==</span> <span class="pre">&lt;PID&gt;</span> <span class="pre">==</span></code> also signifies the starting point in every
+nvprof message section. The timing units are given in seconds (s),
+milliseconds (<em>m</em>s), microseconds (<em>u</em>s) or nanoseconds (<em>n</em>s).
+The <em>GPU activities</em> part within the <em>Profiling results</em> section of the
+nvprof output demonstrates that about 96% of GPU’s activities were focused
+on performing data transfer and non-computational tasks while around only
+4% of the device’s efforts were directed to the actual computation.
+The columns <em>Calls</em>, <em>Avg</em>, <em>Min</em>, and <em>Max</em> show the number of calls,
+average, minimum and maximum timings for these number of function calls,
+respectively. Clearly, if there is only one call to a specific function,
+Min, Max, and Avg columns show the same number.</p>
+<p>This simple example is only a toy model, but enough to illustrate the typical
+conclusions one can reach when analyzing a CUDA program using profiling
+tools. For example, it shows that the task at hand is not
+“data-intensive enough” to be suitable for heterogeneous GPU+CPU
+parallelization due to the large ratio of non-computational tasks’ overhead
+such as data transfer and memory allocation over the target computational
+instruction (<em>i.e.</em>, the array summation). The simplicity of this example
+also rules out the possibility of making major changes to the algorithmic
+aspects of the code which might lead to significant performance improvements.
+The <em>API calls</em> part of the <em>Profiling results</em> section of the nvprof output
+focuses on CUDA (runtime and driver) API calls which allows us to have a
+fine-grid look at the events happening behind the scene.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>The profiling results of nvprof are <a class="reference external" href="https://docs.nvidia.com/cuda/profiler-users-guide/index.html#redirecting-output">directed</a>
+to <code class="docutils literal notranslate"><span class="pre">stderr</span></code> by default. You can use the  <code class="docutils literal notranslate"><span class="pre">--log-file</span> <span class="pre">&lt;fileName&gt;</span></code> option
+within the nvprof command line to save the output in a file named
+<code class="docutils literal notranslate"><span class="pre">&lt;fileName&gt;</span></code>.</p>
+</div>
+</section>
+<section id="nvidia-visual-profiler">
+<h3>2.2. NVIDIA Visual Profiler<a class="headerlink" href="#nvidia-visual-profiler" title="Permalink to this heading">#</a></h3>
+<p>After the compilation step, instead of running the executable with
+nvprof profiler, one can profile it using nvvp by creating an (executable)
+<a class="reference external" href="https://docs.nvidia.com/cuda/profiler-users-guide/index.html#sessions">session</a>.
+Upon opening the executable file from nvvp, we can choose from a list of profiling
+options and methods such as <em>guided analysis</em> to be able to collect data from
+our CUDA program. Guided analysis gives us systematic suggestions which help us find
+opportunities within our code for performance improvements.</p>
+<p>The main graphical user interface for nvvp is illustrated in the following
+figure where the main screen is split into separate panels and organized
+as <em>views</em></p>
+<img alt="_images/nvvp.png" class="align-center" src="_images/nvvp.png" />
+<p>The main section at the top of our screen is the <em>timeline view</em> detailing
+the GPU and CPU activities in your program as a function of execution time.
+Timelines consist of timeline rows, each of which shows the beginning and
+the end of the lifetime of activities indicated by the corresponding row label.
+Sub-rows might also be used for overlapping activities.</p>
+<p>The <em>analysis view</em> panel manages the application analysis and
+presents the results. There are two modes of analysis: (i) <em>guided</em>,
+and (ii) <em>unguided</em>. In the guided analysis mode, nvvp walks you through
+a list of analysis stages to clarify what factors limit the performance of your
+application and where you can find opportunities in your program for improvement.
+In the unguided mode, the profiling results are collected
+and presented to you in such a way that you, instead of system, choose
+the focus stages and decide which one takes the priority to be further
+investigated. In the figure presented above, the bottom-left and
+middle panels, <em>i.e.</em>, the analysis and results views represent the
+profiling analysis stages and results, respectively in the unguided mode.
+The <em>Data Movement and Concurrency</em> stage in this case, gives us four
+possible places that need improvements for performance optimization.
+The first result, for example, is what we had inferred from timing results of
+nvprof: the ratio of actual computation on the device over the GPU time
+spent on non-computational tasks is small.</p>
+<p>The <em>Dependency Analysis</em> stage, which we is shown in the following figure,
+provides profiling information on the timings as well as correlation or
+dependency of various activities during the program lifetime. Please refer
+to the <a class="reference external" href="https://docs.nvidia.com/cuda/profiler-users-guide/index.html#visual">CUDA Toolkit documentation</a>
+for further details about other view types and different aspects of profiling
+in nvvp.</p>
+<img alt="_images/dependencyAnalysis.png" class="align-center" src="_images/dependencyAnalysis.png" />
+<div class="key admonition">
+<p class="admonition-title">Key Points</p>
+<ul class="simple">
+<li><p>CUDA execution model</p></li>
+<li><p>Streaming multiprocessors and thread warps</p></li>
+<li><p>Profiling tools for CUDA programming</p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="04-gpu-compilation-model.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">CUDA GPU Compilation Model</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#gpu-architecture">1. GPU Architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#profiling-tools">2. Profiling Tools</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#command-line-nvidia-profiler">2.1. Command-Line NVIDIA Profiler</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nvidia-visual-profiler">2.2. NVIDIA Visual Profiler</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/05-cuda-execution-model.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  
+
+
+
+  
+  
+  
+  
+  
+  
+  
+
+
+<div class="row h-10">
+    <div class="col-2">
+        <a href="https://molssi.org/" target="_blank" title="Go to MolSSI in a new tab">
+            <img src="_static/molssi_main_logo.png" class="logo__image only-light footer_logo" alt="Logo image">
+            <img src="_static/molssi_main_logo_inverted_white.png" class="logo__image only-dark footer_logo" alt="Logo image">
+        </a>
+    </div>
+    <div class="col-8">
+        <p> &copy; Copyright 2019-2023 <a href="https://molssi.org/">The Molecular Sciences Software Institute</a></p>
+        <p>Funded by the National Science Foundation 
+          <a href="https://nsf.gov/awardsearch/showAward?AWD_ID=1547580">OAC-1547580</a> and 
+          <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2136142">CHE-2136142.</a></p>
+ 
+        
+        <p class="sphinx-version">
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+        </p>
+        
+
+        <p class="theme-version">
+        Built with a customized <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.1.
+        </p>
+
+    </div>
+    <div class="col-2">
+        <a href="https://nsf.gov/" target="_blank" title="Go to the NSF in a new tab">
+            <img src="_static/nsf.png" class="footer_logo" alt="The NSF">
+          </a>
+    </div>
+</div></div>
+      
+    </div>
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

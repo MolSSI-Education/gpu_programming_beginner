@@ -1,0 +1,1771 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>CUDA Programming Model &#8212; molssi_gpu_programming  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script src="_static/design-tabs.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-FHKVGE8HKZ"></script>
+    <script>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){ dataLayer.push(arguments); }
+                gtag('js', new Date());
+                gtag('config', 'G-FHKVGE8HKZ');
+            </script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '03-cuda-program-model';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CUDA GPU Compilation Model" href="04-gpu-compilation-model.html" />
+    <link rel="prev" title="Basic Concepts in CUDA Programming" href="02-basic-concepts.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/molssi_main_logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="_static/molssi_main_logo_inverted_white.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+    <p class="title logo__title">Fundamentals of GPU Programming</p>
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="setup.html">
+                        Setup
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="01-introduction.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="02-basic-concepts.html">
+                        Basic Concepts in CUDA Programming
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        CUDA Programming Model
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="04-gpu-compilation-model.html">
+                        CUDA GPU Compilation Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="05-cuda-execution-model.html">
+                        CUDA Execution Model
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://molssi.org">
+                    MolSSI
+                  </a>
+                </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MolSSI-Education/gpu_programming_beginner" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/MolSSI_NSF" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="setup.html">
+                        Setup
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="01-introduction.html">
+                        Introduction
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="02-basic-concepts.html">
+                        Basic Concepts in CUDA Programming
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="#">
+                        CUDA Programming Model
+                      </a>
+                    </li>
+                
+            <div class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    More
+                </button>
+                <div class="dropdown-menu">
+                    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="04-gpu-compilation-model.html">
+                        CUDA GPU Compilation Model
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="05-cuda-execution-model.html">
+                        CUDA Execution Model
+                      </a>
+                    </li>
+                
+
+                <li class="nav-item">
+                  <a class="nav-link nav-external" href="https://molssi.org">
+                    MolSSI
+                  </a>
+                </li>
+                
+                </div>
+            </div>
+            
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/MolSSI-Education/gpu_programming_beginner" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-github"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://twitter.com/MolSSI_NSF" title="Twitter" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fa-brands fa-square-twitter"></i></span>
+            <label class="sr-only">Twitter</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">CUDA Programming Model</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="cuda-programming-model">
+<h1>CUDA Programming Model<a class="headerlink" href="#cuda-programming-model" title="Permalink to this heading">#</a></h1>
+<div class="overview admonition">
+<p class="admonition-title">Overview</p>
+<p>Questions:</p>
+<ul class="simple">
+<li><p>What is thread hierarchy in CUDA?</p></li>
+<li><p>How can threads be organized within blocks and grids?</p></li>
+<li><p>How can the data be transferred between host and device memory?</p></li>
+<li><p>How can we measure the wall-time of an operation in a program?</p></li>
+</ul>
+<p>Objectives:</p>
+<ul class="simple">
+<li><p>Learning about the basics of the device memory management</p></li>
+<li><p>Understanding the concept of thread hierarchy in CUDA programming model</p></li>
+<li><p>Familiarity with the logistics of a typical CUDA program</p></li>
+</ul>
+</div>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<p>Our [Hello World example]({{site.baseurl}}{% link _episodes/02-basic-concepts.md %}#1-writing-our-first-cuda-program)
+from previous lesson lacks two important aspects of a CUDA program that are crucial
+for CUDA programmers: thread hierarchy and memory management. In the next few examples,
+we will illustrate how threads can be organized within blocks of threads and grids of
+block in order to control the amount of parallelization in a CUDA program. Finally,
+we will employ CUDA’s main memory management functionalities to perform an array summation
+operation on a GPU device.</p>
+<section id="parallelizing-loops-a-prelude-to-thread-hierarchy">
+<h2>1. Parallelizing Loops: A Prelude to Thread Hierarchy<a class="headerlink" href="#parallelizing-loops-a-prelude-to-thread-hierarchy" title="Permalink to this heading">#</a></h2>
+<p>Before getting into the formalities and complexities of the thread hierarchy, let us use
+a simple example to show its potential impact and usefulness in CUDA programming:
+parallelizing loops. The following code implements and calls <code class="docutils literal notranslate"><span class="pre">cpuPrinter()</span></code> function to
+print the loop indices on the host.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-0">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="cp">#define N 8</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">cpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;CPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cpuPrinter</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>copy the proceeding code block into a text file save it as <strong>cpu_printer.cu</strong>.
+Then, open a terminal and compile and run the program using the following commands</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-1" name="sd-tab-set-1" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-shell" for="sd-tab-item-1">
+SHELL</label><div class="sd-tab-content docutils">
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>cpu_printer.cu<span class="w"> </span>-o<span class="w"> </span>cpu_printer
+$<span class="w"> </span>./cpu_printer
+</pre></div>
+</div>
+</div>
+</div>
+<p>Running these commands generates the following output</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-2" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-2">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">CPU Prints Idx: 0</span>
+<span class="go">CPU Prints Idx: 1</span>
+<span class="go">CPU Prints Idx: 2</span>
+<span class="go">CPU Prints Idx: 3</span>
+<span class="go">CPU Prints Idx: 4</span>
+<span class="go">CPU Prints Idx: 5</span>
+<span class="go">CPU Prints Idx: 6</span>
+<span class="go">CPU Prints Idx: 7</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In the aforementioned code block, we fixed the loop iteration number (<em>N=8</em>) in the preprocessor statement
+and assumed that it is equal to the number of available threads. In the previous lesson, we demonstrated
+how to refactor a host function into a device kernel. The difference here is that according to our
+assumption, our kernel should run 8 times and print the same set of indices as that of the host
+function call, <code class="docutils literal notranslate"><span class="pre">cpuPrinter()</span></code>.</p>
+<p>Our general strategy for refactoring the loops in the host function calls into device kernels consists of
+two steps: (i) write the kernel for an individual thread (which in this case is responsible for performing
+one iteration), and (ii) launch the kernel with a total number of threads equal to the number of loop
+iterations. Let us call our refactored kernel <code class="docutils literal notranslate"><span class="pre">gpuPrinter&lt;&lt;&lt;&gt;&gt;&gt;()</span></code> and store the modified code in the
+<strong>gpu_printer_sb.cu</strong> script. The refactored code should look like the following</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-3" name="sd-tab-set-3" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-3">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="cp">#define N 8</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">cpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;CPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">gpuPrinter</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;GPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span><span class="w">        </span><span class="cm">/* Write the kernel for individual threads */</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cpuPrinter</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">gpuPrinter</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="n">N</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w">      </span><span class="cm">/*  Launch the kernel for many threads */</span>
+<span class="w">                                </span><span class="cm">/*  CUDA will raise an error if N &gt; 1024 */</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Compiling and running this code</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-4" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-shell" for="sd-tab-item-4">
+SHELL</label><div class="sd-tab-content docutils">
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>gpu_printer_sb.cu<span class="w"> </span>-o<span class="w"> </span>gpu_printer_sb
+$<span class="w"> </span>./gpu_printer_sb
+</pre></div>
+</div>
+</div>
+</div>
+<p>gives us the desired result</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-5" name="sd-tab-set-5" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-5">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">CPU Prints Idx: 0</span>
+<span class="go">CPU Prints Idx: 1</span>
+<span class="go">CPU Prints Idx: 2</span>
+<span class="go">CPU Prints Idx: 3</span>
+<span class="go">CPU Prints Idx: 4</span>
+<span class="go">CPU Prints Idx: 5</span>
+<span class="go">CPU Prints Idx: 6</span>
+<span class="go">CPU Prints Idx: 7</span>
+
+<span class="go">GPU Prints Idx: 0</span>
+<span class="go">GPU Prints Idx: 1</span>
+<span class="go">GPU Prints Idx: 2</span>
+<span class="go">GPU Prints Idx: 3</span>
+<span class="go">GPU Prints Idx: 4</span>
+<span class="go">GPU Prints Idx: 5</span>
+<span class="go">GPU Prints Idx: 6</span>
+<span class="go">GPU Prints Idx: 7</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Pay attention to the two arguments in the execution configuration in the kernel launch:
+number of blocks in each grid and number of threads in each block, respectively. If
+the <code class="docutils literal notranslate"><span class="pre">gpuPrinter&lt;&lt;&lt;1,N&gt;&gt;&gt;()</span></code> kernel is supposed to print the same set of loop indices
+as that printed by <code class="docutils literal notranslate"><span class="pre">cpuPrinter(N)</span></code>, the simplest approach in this case might be to use
+one block with <em>N</em> threads in it.</p>
+<p>This strategy works well until the number of loop iterations becomes larger than a threshold value.
+This threshold is set by the hardware limit for the <em>maximum number of threads in each block</em>
+which is 1024. As such, one must resort to distributing the threads over multiple blocks while organizing
+them in the execution configuration in order to be able to match the number of loop iterations
+by the number of available threads.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>All thread blocks have equal number of threads.</p>
+</div>
+<p>Let us continue with our example and for the time being and keep the same number of loop iterations
+but distribute the threads among multiple blocks. Cope and paste the following code block in an
+empty text file and save it as <strong>gpu_printer_mb_local.cu</strong>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-6" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-6">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="cp">#define N 8</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">cpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;CPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">gpuPrinter</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w">                                  </span><span class="cm">/* Note that the local index (threadIdx.x) is used */</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;GPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span><span class="w">                    </span><span class="cm">/* Write the kernel for individual threads */</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cpuPrinter</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">gpuPrinter</span><span class="o">&lt;&lt;&lt;</span><span class="mi">2</span><span class="p">,</span><span class="n">N</span><span class="o">/</span><span class="mi">2</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w">      </span><span class="cm">/*  Launch the kernel with two blocks threads */</span>
+<span class="w">                                  </span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>After compilation and execution, we get</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-7" name="sd-tab-set-7" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-7">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">CPU Prints Idx: 0</span>
+<span class="go">CPU Prints Idx: 1</span>
+<span class="go">CPU Prints Idx: 2</span>
+<span class="go">CPU Prints Idx: 3</span>
+<span class="go">CPU Prints Idx: 4</span>
+<span class="go">CPU Prints Idx: 5</span>
+<span class="go">CPU Prints Idx: 6</span>
+<span class="go">CPU Prints Idx: 7</span>
+
+<span class="go">GPU Prints Idx: 0</span>
+<span class="go">GPU Prints Idx: 1</span>
+<span class="go">GPU Prints Idx: 2</span>
+<span class="go">GPU Prints Idx: 3</span>
+<span class="go">GPU Prints Idx: 0</span>
+<span class="go">GPU Prints Idx: 1</span>
+<span class="go">GPU Prints Idx: 2</span>
+<span class="go">GPU Prints Idx: 3</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The output illustrates that the local thread indices (<code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code>) on the GPU restart
+to zero going form one thread block to the next. In the schematics shown below, the thread and block
+indexing patterns for each grid of block is demonstrated for a case where 15 threads are equally
+distributed among three blocks.</p>
+<img alt="_images/1D-block.png" class="align-center" src="_images/1D-block.png" />
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>Each block has a unique zero-based index in a grid and each thread has a unique zero-based index within each block.</p>
+</div>
+<p>In order to reproduce the same set of indices printed by the CPU function, we need to
+translate the local thread indices to their global variant. As such, we use the following
+formula for this conversion</p>
+<p>$$ \tag{1}\label{EQ:LOCALTOGLOBAL}
+(\text{globalThreadIdx})_q = \text{threadIdx}.q + \text{blockIdx}.q \times \text{blockDim}.q \qquad \quad \text{where} \qquad q = x, y, z
+$$</p>
+<p>We now employ Eq. \ref{EQ:LOCALTOGLOBAL} in our code to convert the local thread indices
+to their global variant. After copying and pasting the following code block in a new text
+file, save it as <strong>gpu_printer_mb_global.cu</strong>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-8" name="sd-tab-set-8" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-8">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="cp">#define N 8</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">cpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;CPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">gpuPrinter</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w">       </span><span class="cm">/* The local thread index (threadIdx.x) in the right hand </span>
+<span class="cm">                                                               side should be shifted by an offset value </span>
+<span class="cm">                                                               (blockIdx.x * blockDim.x) to compensate translate it to</span>
+<span class="cm">                                                               a global index */</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;GPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span><span class="w">                    </span><span class="cm">/* Write the kernel for individual threads */</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cpuPrinter</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">gpuPrinter</span><span class="o">&lt;&lt;&lt;</span><span class="mi">2</span><span class="p">,</span><span class="n">N</span><span class="o">/</span><span class="mi">2</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span><span class="w">      </span><span class="cm">/*  Organizing eight threads in two blocks with four threads */</span>
+<span class="w">                                  </span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Compiling and running the aforementioned script yields the expected result
+provided below</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-9" name="sd-tab-set-9" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-9">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">CPU Prints Idx: 0</span>
+<span class="go">CPU Prints Idx: 1</span>
+<span class="go">CPU Prints Idx: 2</span>
+<span class="go">CPU Prints Idx: 3</span>
+<span class="go">CPU Prints Idx: 4</span>
+<span class="go">CPU Prints Idx: 5</span>
+<span class="go">CPU Prints Idx: 6</span>
+<span class="go">CPU Prints Idx: 7</span>
+
+<span class="go">GPU Prints Idx: 4</span>
+<span class="go">GPU Prints Idx: 5</span>
+<span class="go">GPU Prints Idx: 6</span>
+<span class="go">GPU Prints Idx: 7</span>
+<span class="go">GPU Prints Idx: 0</span>
+<span class="go">GPU Prints Idx: 1</span>
+<span class="go">GPU Prints Idx: 2</span>
+<span class="go">GPU Prints Idx: 3</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The output indicates although the same set of indices has been printed for both host function
+and device kernel, the order of indices is not preserved for the latter. The reason is that
+the sequential task of performing the same operation within a loop is now distributed
+among multiple threads running (almost) at the same time while there is no guarantee for
+their respective order when dispatched by the streaming multiprocessor.</p>
+<p>In the aforementioned examples, we assumed the number of loop iterations was equal to the
+total number of threads. What happens if we dispatch more threads in the execution configuration
+than the number of loop iterations? How about the opposite case where the number of available threads
+is smaller than that of elements in the target data structure? We use two techniques presented by
+Mark Harris in his <a class="reference external" href="https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/">blog post</a>
+to deal with the two aforementioned cases, respectively: monolithic kernels and grid-stride loops.</p>
+<section id="monolithic-kernels">
+<h3>1.1. Monolithic Kernels<a class="headerlink" href="#monolithic-kernels" title="Permalink to this heading">#</a></h3>
+<p>The first scenario is the case where the number of available threads organized through kernel’s
+execution configuration and dispatched from kernel launch is larger than the number of elements
+in the target data structure. In this case, the extra threads will step over the memory addresses
+corresponding to the allocated data structure and attempt to access unallocated memory spots.
+This attempt might lead to incorrect results and undefined behavior. In order to avoid accessing
+the unallocated memory addresses, we add an <code class="docutils literal notranslate"><span class="pre">if(numThreads</span> <span class="pre">&lt;</span> <span class="pre">N)</span></code> conditional statement to our
+kernel implementation. Making the aforementioned change in our last code and storing it in a
+script named <strong>gpu_printer_monolithic.cu</strong>, we should have</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-10" name="sd-tab-set-10" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-10">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="cp">#define N 8</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">cpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;CPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">gpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w">                 </span><span class="cm">/* Make sure the global index does not go beyond the limit */</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;GPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cpuPrinter</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">gpuPrinter</span><span class="o">&lt;&lt;&lt;</span><span class="mi">4</span><span class="p">,</span><span class="n">N</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">N</span><span class="p">);</span><span class="w">      </span><span class="cm">/*  Launch the kernel with 32 threads (4 blocks with 8 threads) */</span>
+<span class="w">                                </span><span class="cm">/*  The number of dispatched threads (32) is greater than N */</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>After compiling and running the code above, we get</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-11" name="sd-tab-set-11" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-11">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">CPU Prints Idx: 0</span>
+<span class="go">CPU Prints Idx: 1</span>
+<span class="go">CPU Prints Idx: 2</span>
+<span class="go">CPU Prints Idx: 3</span>
+<span class="go">CPU Prints Idx: 4</span>
+<span class="go">CPU Prints Idx: 5</span>
+<span class="go">CPU Prints Idx: 6</span>
+<span class="go">CPU Prints Idx: 7</span>
+
+<span class="go">GPU Prints Idx: 0</span>
+<span class="go">GPU Prints Idx: 1</span>
+<span class="go">GPU Prints Idx: 2</span>
+<span class="go">GPU Prints Idx: 3</span>
+<span class="go">GPU Prints Idx: 4</span>
+<span class="go">GPU Prints Idx: 5</span>
+<span class="go">GPU Prints Idx: 6</span>
+<span class="go">GPU Prints Idx: 7</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>It might be interesting to mention that the name monolithic kernel is a reminder of the adopted
+conditional statement and our initial assumption that the total number of available threads is
+larger than the number of elements in the data structure.</p>
+</section>
+<section id="grid-stride-loops">
+<h3>1.2. Grid-Stride Loops<a class="headerlink" href="#grid-stride-loops" title="Permalink to this heading">#</a></h3>
+<p>In a situation when the number of available threads is less than what is necessary for a one-to-one
+mapping between the threads and data elements, each thread within a kernel might have to work on
+multiple data. In dealing with this case using grid-stride loop, we include our kernel
+operation in a <code class="docutils literal notranslate"><span class="pre">for()</span></code> loop where the thread indices will have to be incremented by the total
+number of dispatched threads (grid stride) for every round of work. For example, if our data structure
+has 50 elements but we have dispatched 25 threads in our kernel launch, each thread has to
+operate on two different data elements. Then, thread 0 performs work on element 0, thread 1 on element 1,
+…, thread 24 on element 24. Then, the for loop increments the thread indices by adding the grid size
+(the total number of dispatched threads, here, 25). As such, in the second iteration, thread 25 (0 + 25)
+operates on element 25, thread 26 (1 + 25) on element 26 … thread 49 (24 + 25) on element 49.
+Let us get back to the previous example and see how it changes in this scenario. Copy the following
+code block and save it in a script named <strong>gpu_printer_grid_stride_loop.cu</strong>.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-12" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-12">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="cp">#define N 8</span>
+
+<span class="kt">void</span><span class="w"> </span><span class="nf">cpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">;</span><span class="w"> </span><span class="n">idx</span><span class="o">++</span><span class="p">)</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;CPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">idx</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">gpuPrinter</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">nlim</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w">  </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">stride</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w">                                 </span><span class="cm">/* Manually initialized. Not good! */</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="k">for</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">idx</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">nlim</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">+=</span><span class="n">stride</span><span class="p">)</span><span class="w">           </span><span class="cm">/* grid-stride loop */</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;GPU Prints Idx: %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">cpuPrinter</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
+
+<span class="w">    </span><span class="n">gpuPrinter</span><span class="o">&lt;&lt;&lt;</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">N</span><span class="p">);</span><span class="w">      </span><span class="cm">/*  Launch the kernel 2 threads which is less than 8 */</span>
+
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>After compilation and execution, once again we get the desired output</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-13" name="sd-tab-set-13" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-13">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">CPU Prints Idx: 0</span>
+<span class="go">CPU Prints Idx: 1</span>
+<span class="go">CPU Prints Idx: 2</span>
+<span class="go">CPU Prints Idx: 3</span>
+<span class="go">CPU Prints Idx: 4</span>
+<span class="go">CPU Prints Idx: 5</span>
+<span class="go">CPU Prints Idx: 6</span>
+<span class="go">CPU Prints Idx: 7</span>
+
+<span class="go">GPU Prints Idx: 0</span>
+<span class="go">GPU Prints Idx: 1</span>
+<span class="go">GPU Prints Idx: 2</span>
+<span class="go">GPU Prints Idx: 3</span>
+<span class="go">GPU Prints Idx: 4</span>
+<span class="go">GPU Prints Idx: 5</span>
+<span class="go">GPU Prints Idx: 6</span>
+<span class="go">GPU Prints Idx: 7</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note that in this example, we have adopted very small sizes for our data structure (8) and threads (2)
+for simplicity and clarity of demonstration.</p>
+<p>In this case, each thread performs the print operation four times. In this case, initialized the
+the stride value in our kernel through hard-coding. This is not ideal as we might not know all necessary
+information for calculating the stride value before the runtime. In the next section, we provide a formal
+introduction to CUDA thread hierarchy and demonstrate how CUDA provides kernels with all necessary
+information regarding the thread organization at the runtime.</p>
+</section>
+</section>
+<section id="thread-hierarchy-in-cuda">
+<h2>2. Thread Hierarchy in CUDA<a class="headerlink" href="#thread-hierarchy-in-cuda" title="Permalink to this heading">#</a></h2>
+<p>CUDA exposes a two-level thread hierarchy, consisting of <strong>block of threads</strong> and
+<strong>grids of blocks</strong>, to the programmer in order to allow for thread organization
+on GPU devices.</p>
+<img alt="_images/grid_blocks.png" class="align-center" src="_images/grid_blocks.png" />
+<p>As figure demonstrates, each grid is often constructed from many thread blocks.
+Each block is a group of threads invoked by kernel to perform a specific task
+in parallel. Each thread in a block has its own private local memory space.
+However, threads in a block can cooperate to perform the same task in parallel
+thanks to the shared memory space in the block which makes data visible to all
+threads in the block for the life time of that block. The cooperation between threads
+not only can happen in terms of sharing the data and access to it within the block-local
+shared memory space but also can be realized in the form of block-level thread
+synchronization.</p>
+<p>Within the aforementioned two-level thread hierarchy, each thread can be identified with
+two parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">threadIdx</span></code>: which refers to the thread index within each block</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blockIdx</span></code>: which stands for the block index within each grid</p></li>
+</ul>
+<p>Both <code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> and <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code> identifiers are
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#built-in-variables">built-in structure variables</a>
+of integer-based vector-type, <code class="docutils literal notranslate"><span class="pre">uint3</span></code>, assigned to each thread by CUDA
+runtime application. The internal assignment of these variables are driven by kernel
+execution which makes them accessible to that kernel. Components of the <code class="docutils literal notranslate"><span class="pre">threadIdx</span></code> or <code class="docutils literal notranslate"><span class="pre">blockIdx</span></code>
+structure variables, <em>i.e.</em>, <code class="docutils literal notranslate"><span class="pre">threadIdx.x</span></code>, <code class="docutils literal notranslate"><span class="pre">threadIdx.y</span></code>, and <code class="docutils literal notranslate"><span class="pre">threadIdx.z</span></code> as well as
+<code class="docutils literal notranslate"><span class="pre">blockIdx.x</span></code>, <code class="docutils literal notranslate"><span class="pre">blockIdx.y</span></code>, and <code class="docutils literal notranslate"><span class="pre">blockIdx.z</span></code> allow for a three-dimensional organization of
+blocks and grids in CUDA. The dimensions of grids of blocks and bocks of threads can be
+controlled via the following CUDA built-in variables, respectively</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">gridDim</span></code>: which refers to the grids of block object dimension</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">blockDim</span></code>: which indicates the block of threads’ dimension</p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">blockDim</span></code> and <code class="docutils literal notranslate"><span class="pre">gridDim</span></code> variables are structures of <code class="docutils literal notranslate"><span class="pre">dim3</span></code> type with x, y, z fields
+for Cartesian components.</p>
+<p>Let’s write a simple kernel that shows how blocks of threads and grids of blocks can be
+organized and identified in a CUDA program:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-14" name="sd-tab-set-14" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-14">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">printThreadID</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* For each thread, the kernel prints</span>
+<span class="cm">     * the threadIdx, blockIdx, blockDim,</span>
+<span class="cm">     * and gridDim, respectively.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;threadIdx:(%d, %d, %d), \</span>
+<span class="s">            blockIdx:(%d, %d, %d), \</span>
+<span class="s">            blockDim:(%d, %d, %d), \</span>
+<span class="s">            gridDim:(%d, %d, %d)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">z</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">z</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">z</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">gridDim</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">gridDim</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+
+<span class="p">}</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Array size */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">numArray</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="mi">6</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Number of threads in blocks */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">numBlocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Organizing grids and blocks */</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="nf">block</span><span class="p">(</span><span class="n">numBlocks</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="n">grid</span><span class="p">((</span><span class="n">numArray</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Let the user know that the dimensions will be printed from the host */</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Printing from the host!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Print the grid and block dimensions from the host */</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;[grid.x, grid.y, grid.z]:    [%d, %d, %d]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;[block.x, block.y, block.z]: [%d, %d, %d]</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Indicate that the dimensions will now be printed from the device */</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Printing from the device!</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Print the grid and block dimensions from the device */</span>
+<span class="w">    </span><span class="n">printThreadID</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/* Performing house-keeping for the device */</span>
+<span class="w">    </span><span class="n">cudaDeviceReset</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Running this code will generate the following output:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-15" name="sd-tab-set-15" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-15">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">Printing from the host!</span>
+<span class="go">[grid.x, grid.y, grid.z]:    [3, 1, 1]</span>
+<span class="go">[block.x, block.y, block.z]: [2, 1, 1]</span>
+
+<span class="go">Printing from the device!</span>
+<span class="go">threadIdx:(0, 0, 0),             blockIdx:(0, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)</span>
+<span class="go">threadIdx:(1, 0, 0),             blockIdx:(0, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)</span>
+<span class="go">threadIdx:(0, 0, 0),             blockIdx:(2, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)</span>
+<span class="go">threadIdx:(1, 0, 0),             blockIdx:(2, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)</span>
+<span class="go">threadIdx:(0, 0, 0),             blockIdx:(1, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)</span>
+<span class="go">threadIdx:(1, 0, 0),             blockIdx:(1, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Now, let’s get back to our code and analyze it step by step
+in order to understand the mechanistic details of thread
+organization in CUDA programming. First, you might have noticed
+that we have included <em><strong>cuda_runtime.h</strong></em> header file in addition to
+<em><strong>stdio.h</strong></em> and <em><strong>stdlib.h</strong></em> that provide access to <code class="docutils literal notranslate"><span class="pre">printf()</span></code> functions
+and status macros in C, respectively. The
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/index.html">CUDA runtime API</a>
+manages the kernel loads, parameter passes and configurations
+before kernel execution. CUDA runtime consists of two main parts:
+(i) a C-style function interface (<em>cuda_runtime_api.h</em>),
+and (ii) a C++-style interface (<em>cuda_runtime.h</em>) built upon C-APIs
+as wrapper extensions for programming convenience.
+As long as our codes are compiled with <strong>nvcc</strong>, it manages the
+inclusion of CUDA runtime API headers for us. So, you can try even
+removing the <em><strong>cuda_runtime.h</strong></em> header from the code but it still compiles
+without any issues. The structure of the <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/index.html">CUDA runtime API</a>
+is detailed in the CUDA Toolkit <a class="reference external" href="https://docs.nvidia.com/cuda/index.html">documentation</a>.</p>
+<p>The next part of our code defines the <code class="docutils literal notranslate"><span class="pre">printThreadID()</span></code> kernel
+implementation which is comprised of a single function call to the formatted
+print function, <code class="docutils literal notranslate"><span class="pre">printf()</span></code>. Our code demonstrates that there are two
+different sets of grid and block identification variables:
+(i) user-defined variables of type <code class="docutils literal notranslate"><span class="pre">dim3</span></code> that are defined and visible
+on the host side, only,</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-16" name="sd-tab-set-16" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-16">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kt">dim3</span><span class="w"> </span><span class="nf">block</span><span class="p">(</span><span class="n">numBlocks</span><span class="p">);</span>
+<span class="kt">dim3</span><span class="w"> </span><span class="n">grid</span><span class="p">((</span><span class="n">numArray</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>and (ii) the built-in thread, block and grid identification variables of
+the type <code class="docutils literal notranslate"><span class="pre">uint3</span></code> which will be visible on the device and therefore accessible
+within the kernel function.</p>
+<p>We previously mentioned that the structures of <code class="docutils literal notranslate"><span class="pre">dim3</span></code> type have three
+fields but in this case, only one value has been passed to both block
+and grid object constructors’ argument lists.
+As such, the other two undefined variables are automatically initialized
+to 1 and ignored (See the output above). It is important to note that the
+number of grids in each direction (<em>i.e.</em>, x, y, z) is dependent on the
+number of threads in blocks through the following formula:</p>
+<p>$$ \tag{2}\label{EQ:THRDORG}
+\text{grids}.q = \left(\frac{\text{numberOfElements} + \text{block}.q - 1}{\text{block}.q}\right), \qquad \quad \text{where} \qquad q = x, y, z
+$$</p>
+<p>In the next part of our code, we then access the block and grid dimension variables
+within the main function to print them to the screen from the host.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-17" name="sd-tab-set-17" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-17">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;[grid.x, grid.y, grid.z]:    [%d, %d, %d]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">grid</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s">&quot;[block.x, block.y, block.z]: [%d, %d, %d]</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>After that, the grid and block objects can be passed to the kernel execution
+configuration as arguments:</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-18" name="sd-tab-set-18" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-18">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="n">printThreadID</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="o">&gt;&gt;&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The kernel execution triggers the initialization of the built-in thread,
+block and grid identification variables of the type <code class="docutils literal notranslate"><span class="pre">uint3</span></code> by the CUDA runtime
+which will be visible and accessible to the kernel functions on the device side.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-19" name="sd-tab-set-19" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-19">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">printThreadID</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* For each thread, the kernel prints</span>
+<span class="cm">     * the threadIdx, blockIdx, blockDim,</span>
+<span class="cm">     * and gridDim, respectively.</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;threadIdx:(%d, %d, %d), \</span>
+<span class="s">            blockIdx:(%d, %d, %d), \</span>
+<span class="s">            blockDim:(%d, %d, %d), \</span>
+<span class="s">            gridDim:(%d, %d, %d)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">z</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">z</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">z</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="nb">gridDim</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="nb">gridDim</span><span class="p">.</span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="nb">gridDim</span><span class="p">.</span><span class="n">z</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>When each active thread runs the kernel, it has access to the aforementioned pre-initialized
+identification indices. Therefore, the kernel function <code class="docutils literal notranslate"><span class="pre">printThreadID()</span></code> can print the thread
+identifiers to the screen. Note that in order to improve readability, we have used  backslashes, ‘',
+to split a long function argument list in <code class="docutils literal notranslate"><span class="pre">printf()</span></code> function call into multiple lines of code.
+Finally, we call the <code class="docutils literal notranslate"><span class="pre">cudaDeviceReset()</span></code> function to destroy all allocated memory addresses on the device
+and restart its state within the current process.</p>
+<p>In the following, we present some of the most frequently used functions from CUDA runtime API collection
+that will be used in our array summation case study.</p>
+</section>
+<section id="basics-of-the-device-memory-management-in-cuda">
+<h2>3. Basics of the Device Memory Management in CUDA<a class="headerlink" href="#basics-of-the-device-memory-management-in-cuda" title="Permalink to this heading">#</a></h2>
+<p>In our array summation example, (and in many other scientific applications, in general),
+we will follow a typical pattern in CUDA programming which can be formulated in a series of steps
+as follows:</p>
+<ol class="arabic simple">
+<li><p>Transferring the data from host to device</p></li>
+<li><p>Kernel execution on the device</p></li>
+<li><p>Moving the results back from device to host</p></li>
+</ol>
+<p>As we mentioned previously, most CUDA programs have at least two code domains:
+(i) the host code domain which runs on the host (CPU and its memory), and (ii) the device code
+domain which is executed on the device (GPU and its memory). The separation (and localization)
+of data processes in each domain with different architecture type requires a specific strategy for
+memory management and data transfer between the two processing units. As such, CUDA provides
+convenient runtime APIs that allow the user to <em>allocate</em> or <em>deallocate</em> the device memory
+and <em>transfer</em> data between host and device memories.</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head text-center"><p><strong>C/C++</strong></p></th>
+<th class="head text-center"><p><strong>CUDA</strong></p></th>
+<th class="head text-center"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://en.cppreference.com/w/c/memory/malloc">malloc()</a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1g37d37965bfb4803b6d4e59ff26856356">cudaMalloc()</a></p></td>
+<td class="text-center"><p>Allocate uninitialized memory</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><a class="reference external" href="https://en.cppreference.com/w/c/string/byte/memset">memset()</a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1gf7338650f7683c51ee26aadc6973c63a">cudaMemset()</a></p></td>
+<td class="text-center"><p>Initialize memory</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p><a class="reference external" href="https://en.cppreference.com/w/c/memory/free">free()</a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1ga042655cbbf3408f01061652a075e094">cudaFree()</a></p></td>
+<td class="text-center"><p>Deallocate memory</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p><a class="reference external" href="https://en.cppreference.com/w/c/string/byte/memcpy">memcpy()</a></p></td>
+<td class="text-center"><p><a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__MEMORY.html#group__CUDART__MEMORY_1gc263dbe6574220cc776b45438fc351e8">cudaMemcpy()</a></p></td>
+<td class="text-center"><p>Copy memory</p></td>
+</tr>
+</tbody>
+</table>
+<p>As the table above demonstrates, CUDA adopts a convenient naming style for C/C++ functions
+and syntax extensions making it easier for the programmer to manage memory on GPU devices.
+NVIDIA adopts <strong>lowerCamelCase</strong> (Java style) naming style for its CUDA C/C++ extension APIs.
+Here, the <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> function with the following syntax</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-20" name="sd-tab-set-20" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-20">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__host__</span><span class="w"> </span><span class="kt">__device__</span><span class="w"> </span><span class="n">cudaError_t</span><span class="w"> </span><span class="n">cudaMalloc</span><span class="p">(</span><span class="kt">void</span><span class="o">**</span><span class="w"> </span><span class="n">devPtr</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">size</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>allocates <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes of linear memory on the device pointed to by the <code class="docutils literal notranslate"><span class="pre">devPtr</span></code> double-pointer
+variable. As mentioned previously, the <code class="docutils literal notranslate"><span class="pre">__host__</span></code> and <code class="docutils literal notranslate"><span class="pre">__device__</span></code> qualifiers can be used
+together should the kernel be compiled for both host and device.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>All CUDA function APIs (except kernel launches) return an error value of
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g3f51e3575c2178246db0a94a430e0038">enumerated type</a>,
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1gf599e5b8b829ce7db0f5216928f6ecb6"><code class="docutils literal notranslate"><span class="pre">cudaError_t</span></code></a>.</p>
+</div>
+<p>With the memory being allocated on the device, the <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> function, with
+the following signature,</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-21" name="sd-tab-set-21" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-21">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="kr">__host__</span><span class="w"> </span><span class="n">cudaError_t</span><span class="w"> </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">dst</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">src</span><span class="p">,</span><span class="w"> </span><span class="kt">size_t</span><span class="w"> </span><span class="n">count</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyKind</span><span class="w"> </span><span class="n">kind</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>can be adopted to transfer <code class="docutils literal notranslate"><span class="pre">count</span></code> bytes of data from source memory, pointed to by <code class="docutils literal notranslate"><span class="pre">src</span></code>
+pointer, to the destination memory address, pointed to by <code class="docutils literal notranslate"><span class="pre">dst</span></code>. The direction of data
+transfer is inferred from the value of the variable, <code class="docutils literal notranslate"><span class="pre">kind</span></code>, of cuda memory enumeration type,
+<a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g18fa99055ee694244a270e4d5101e95b"><code class="docutils literal notranslate"><span class="pre">cudaMemcpyKind</span></code></a>,
+which can take one of the following values:</p>
+<ul class="simple">
+<li><p>cudaMemcpyHostToHost</p></li>
+<li><p>cudaMemcpyHostToDevice</p></li>
+<li><p>cudaMemcpyDeviceToHost</p></li>
+<li><p>cudaMemcpyDeviceToDevice</p></li>
+<li><p>cudaMemcpyDefault</p></li>
+</ul>
+<p>CUDA recommends passing <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> to <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> function call, in which case, the
+transfer direction is automatically chosen based upon the pointer values <code class="docutils literal notranslate"><span class="pre">scr</span></code> and <code class="docutils literal notranslate"><span class="pre">dst</span></code>.
+Note that <code class="docutils literal notranslate"><span class="pre">cudaMemcpyDefault</span></code> should only be adopted when <a class="reference external" href="https://www.google.com/url?sa=t&amp;amp;rct=j&amp;amp;q=&amp;amp;esrc=s&amp;amp;source=web&amp;amp;cd=&amp;amp;cad=rja&amp;amp;uact=8&amp;amp;ved=2ahUKEwiJ9rD787ruAhXkQ98KHVYMAI0QFjAAegQIARAC&amp;amp;url=https%3A%2F%2Fdeveloper.download.nvidia.com%2FCUDA%2Ftraining%2Fcuda_webinars_GPUDirect_uva.pdf&amp;amp;usg=AOvVaw0h8XB32gYKtSmfEwEaFcbQ"><em>unified virtual
+addressing (UVA)</em></a> is supported.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>Most kernel launches we consider in this tutorial are <em>asynchronous</em> in their behavior in which
+case the control flow is immediately returned to the host after kernel execution. However,
+some function calls, such as <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code>, are <em>synchronous</em>– the host application stops until
+the function completes its task.</p>
+</div>
+</section>
+<section id="summation-of-arrays-on-gpus">
+<h2>4. Summation of Arrays on GPUs<a class="headerlink" href="#summation-of-arrays-on-gpus" title="Permalink to this heading">#</a></h2>
+<p>Copy the following code into an empty text file, rename it to <em><strong>gpuVectorSum.cu</strong></em> and save it.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-22" name="sd-tab-set-22" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-cuda" for="sd-tab-item-22">
+CUDA</label><div class="sd-tab-content docutils">
+<div class="highlight-cuda notranslate"><div class="highlight"><pre><span></span><span class="cm">/*================================================*/</span>
+<span class="cm">/*================ gpuVectorSum.cu ===============*/</span>
+<span class="cm">/*================================================*/</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdlib.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdbool.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;time.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;sys/time.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;cuda_runtime.h&gt;</span>
+
+<span class="cm">/*************************************************/</span>
+<span class="kr">inline</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="nf">chronometer</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timezone</span><span class="w"> </span><span class="n">tzp</span><span class="p">;</span>
+<span class="w">    </span><span class="k">struct</span><span class="w"> </span><span class="nc">timeval</span><span class="w"> </span><span class="n">tp</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">tmp</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">gettimeofday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tp</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">tzp</span><span class="p">);</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="p">((</span><span class="kt">double</span><span class="p">)</span><span class="n">tp</span><span class="p">.</span><span class="n">tv_sec</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="kt">double</span><span class="p">)</span><span class="n">tp</span><span class="p">.</span><span class="n">tv_usec</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.</span><span class="n">e</span><span class="mi">-6</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">dataInitializer</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">inputArray</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="cm">/* Generating float-type random numbers </span>
+<span class="cm">     * between 0.0 and 1.0</span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="kt">time_t</span><span class="w"> </span><span class="n">t</span><span class="p">;</span>
+<span class="w">    </span><span class="n">srand</span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="n">time</span><span class="p">(</span><span class="o">&amp;</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">inputArray</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)</span><span class="n">rand</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">RAND_MAX</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1.0</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">arraySumOnHost</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="kr">__global__</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">arraySumOnDevice</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">A</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">B</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">idx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">blockIdx</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">blockDim</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">threadIdx</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span>
+<span class="w">        </span><span class="n">C</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">idx</span><span class="p">];</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="kt">void</span><span class="w"> </span><span class="n">arrayEqualityCheck</span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">devicePtr</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">size</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">tolerance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0E-8</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">bool</span><span class="w"> </span><span class="n">isEqual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">size</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">abs</span><span class="p">(</span><span class="n">hostPtr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">devicePtr</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">tolerance</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="n">isEqual</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Arrays are NOT equal because:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">            </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;at %dth index: hostPtr[%d] = %5.2f \</span>
+<span class="s">            and devicePtr[%d] = %5.2f;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">            </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">hostPtr</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">devicePtr</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">            </span><span class="k">break</span><span class="p">;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">isEqual</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Arrays are equal.</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+<span class="cm">/*************************************************/</span>
+<span class="kt">int</span><span class="w"> </span><span class="n">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">**</span><span class="n">argv</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Kicking off %s</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+
+<span class="w">    </span><span class="cm">/* Device setup */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">deviceIdx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cudaSetDevice</span><span class="p">(</span><span class="n">deviceIdx</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Device properties */</span>
+<span class="w">    </span><span class="n">cudaDeviceProp</span><span class="w"> </span><span class="n">deviceProp</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cudaGetDeviceProperties</span><span class="p">(</span><span class="o">&amp;</span><span class="n">deviceProp</span><span class="p">,</span><span class="w"> </span><span class="n">deviceIdx</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;GPU device %s with index (%d) is set!</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">    </span><span class="n">deviceProp</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">deviceIdx</span><span class="p">);</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* Fixing the vector size to 1 * 2^24 = 16777216 (64 MB) */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">vecSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">24</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">size_t</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">vecSize</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="kt">float</span><span class="p">);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Vector size: %d floats (%lu MB)</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="o">/</span><span class="mi">1024</span><span class="o">/</span><span class="mi">1024</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Memory allocation on the host */</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">devicePtr</span><span class="p">;</span>
+<span class="w">    </span><span class="n">h_A</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">h_B</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">hostPtr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">devicePtr</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">tStart</span><span class="p">,</span><span class="w"> </span><span class="n">tElapsed</span><span class="p">;</span>
+
+<span class="w">    </span><span class="cm">/* Vector initialization on the host */</span>
+<span class="w">    </span><span class="n">tStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chronometer</span><span class="p">();</span>
+<span class="w">    </span><span class="n">dataInitializer</span><span class="p">(</span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">dataInitializer</span><span class="p">(</span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">tElapsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chronometer</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tStart</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Elapsed time for dataInitializer: %f second(s)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tElapsed</span><span class="p">);</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">memset</span><span class="p">(</span><span class="n">devicePtr</span><span class="p">,</span><span class="w">  </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Vector summation on the host */</span>
+<span class="w">    </span><span class="n">tStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chronometer</span><span class="p">();</span>
+<span class="w">    </span><span class="n">arraySumOnHost</span><span class="p">(</span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">tElapsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chronometer</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tStart</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Elapsed time for arraySumOnHost: %f second(s)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">tElapsed</span><span class="p">);</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* (Global) memory allocation on the device */</span>
+<span class="w">    </span><span class="kt">float</span><span class="w"> </span><span class="o">*</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">d_C</span><span class="p">;</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">float</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">float</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMalloc</span><span class="p">((</span><span class="kt">float</span><span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Data transfer from host to device */</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="n">h_A</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="n">h_B</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">devicePtr</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyHostToDevice</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Organizing grids and blocks */</span>
+<span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">numThreadsInBlocks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1024</span><span class="p">;</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="nf">block</span><span class="w"> </span><span class="p">(</span><span class="n">numThreadsInBlocks</span><span class="p">);</span>
+<span class="w">    </span><span class="kt">dim3</span><span class="w"> </span><span class="n">grid</span><span class="w">  </span><span class="p">((</span><span class="n">vecSize</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Execute the kernel from the host*/</span>
+<span class="w">    </span><span class="n">tStart</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chronometer</span><span class="p">();</span>
+<span class="w">    </span><span class="n">arraySumOnDevice</span><span class="o">&lt;&lt;&lt;</span><span class="n">grid</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="o">&gt;&gt;&gt;</span><span class="p">(</span><span class="n">d_A</span><span class="p">,</span><span class="w"> </span><span class="n">d_B</span><span class="p">,</span><span class="w"> </span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaDeviceSynchronize</span><span class="p">();</span>
+<span class="w">    </span><span class="n">tElapsed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">chronometer</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tStart</span><span class="p">;</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;Elapsed time for arraySumOnDevice &lt;&lt;&lt; %d, %d &gt;&gt;&gt;: %f second(s)</span><span class="se">\n\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span>\
+<span class="w">    </span><span class="n">grid</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">block</span><span class="p">.</span><span class="n">x</span><span class="p">,</span><span class="w"> </span><span class="n">tElapsed</span><span class="p">);</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* Returning the last error from a runtime call */</span>
+<span class="w">    </span><span class="n">cudaGetLastError</span><span class="p">();</span>
+
+<span class="w">    </span><span class="cm">/* Data transfer back from device to host */</span>
+<span class="w">    </span><span class="n">cudaMemcpy</span><span class="p">(</span><span class="n">devicePtr</span><span class="p">,</span><span class="w"> </span><span class="n">d_C</span><span class="p">,</span><span class="w"> </span><span class="n">vecSizeInBytes</span><span class="p">,</span><span class="w"> </span><span class="n">cudaMemcpyDeviceToHost</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Check to see if the array summations on </span>
+<span class="cm">     * CPU and GPU yield the same results </span>
+<span class="cm">     */</span>
+<span class="w">    </span><span class="n">arrayEqualityCheck</span><span class="p">(</span><span class="n">hostPtr</span><span class="p">,</span><span class="w"> </span><span class="n">devicePtr</span><span class="p">,</span><span class="w"> </span><span class="n">vecSize</span><span class="p">);</span>
+<span class="cm">/*-----------------------------------------------*/</span>
+<span class="w">    </span><span class="cm">/* Free the allocated memory on the device */</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">d_A</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">d_B</span><span class="p">);</span>
+<span class="w">    </span><span class="n">cudaFree</span><span class="p">(</span><span class="n">d_C</span><span class="p">);</span>
+
+<span class="w">    </span><span class="cm">/* Free the allocated memory on the host */</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">h_A</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">h_B</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">hostPtr</span><span class="p">);</span>
+<span class="w">    </span><span class="n">free</span><span class="p">(</span><span class="n">devicePtr</span><span class="p">);</span>
+
+<span class="w">    </span><span class="k">return</span><span class="p">(</span><span class="n">EXIT_SUCCESS</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>After saving the code, it can be compiled and run using the following two commands</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-23" name="sd-tab-set-23" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-shell" for="sd-tab-item-23">
+SHELL</label><div class="sd-tab-content docutils">
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>nvcc<span class="w"> </span>gpuVectorSum.cu<span class="w"> </span>-o<span class="w"> </span>gpuVectorSum
+$<span class="w"> </span>./gpuVectorSum
+</pre></div>
+</div>
+</div>
+</div>
+<p>with the output similar to the following</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-24" name="sd-tab-set-24" type="radio">
+</input><label class="sd-tab-label" data-sync-id="tabcode-output" for="sd-tab-item-24">
+OUTPUT</label><div class="sd-tab-content docutils">
+<div class="highlight-output notranslate"><div class="highlight"><pre><span></span><span class="go">Kicking off ./test</span>
+
+<span class="go">GPU device &quot;GeForce GTX 1650&quot; with index &quot;0&quot; is set!</span>
+
+<span class="go">Vector size: 16777216 floats (64 MB)</span>
+
+<span class="go">Elapsed time for dataInitializer: 0.757348 second(s)</span>
+<span class="go">Elapsed time for arraySumOnHost: 0.062009 second(s)</span>
+<span class="go">Elapsed time for arraySumOnDevice &lt;&lt;&lt; 16384, 1024 &gt;&gt;&gt;: 0.001885 second(s)</span>
+
+<span class="go">Arrays are equal.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In this case, wall-time measurements indicate that the <code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code>
+executes more than ten times faster than <code class="docutils literal notranslate"><span class="pre">arraySumOnHost()</span></code>. Since the
+size of arrays we used are very small compared to what makes such measurements
+relevant and useful from practical perspective, we do not
+intend overstate the importance of these timings and observed savings.
+Another major problem with this code is its length.
+In the next lesson, we are going to restructure this code by breaking
+it into multiple source files when we talk a little bit about the nvcc compiler.</p>
+<p>Now, it is time to focus on our code and start analyzing it from the beginning.</p>
+<section id="header-files-and-function-definitions">
+<h3>4.1. Header Files and Function Definitions<a class="headerlink" href="#header-files-and-function-definitions" title="Permalink to this heading">#</a></h3>
+<p>Our vector addition code, involves three additional new headers: (i)
+<em><strong>stdbool.h</strong></em> for including the <code class="docutils literal notranslate"><span class="pre">true</span></code> and <code class="docutils literal notranslate"><span class="pre">false</span></code> boolean type definitions,
+(ii) <em><strong>time.h</strong></em> for including <code class="docutils literal notranslate"><span class="pre">time_t</span></code> type and <code class="docutils literal notranslate"><span class="pre">time()</span></code> function definitions,
+and (iii) <em><strong>sys/time.h</strong></em> for adding the <code class="docutils literal notranslate"><span class="pre">timeval</span></code> and <code class="docutils literal notranslate"><span class="pre">timezone</span></code>
+structure definitions.</p>
+<p>In the next section of our code, separated by commented star-shaped lines,
+there are four C/C++ function definitions [<code class="docutils literal notranslate"><span class="pre">chronometer()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dataInitializer()</span></code>, <code class="docutils literal notranslate"><span class="pre">arraySumOnHost()</span></code>, and <code class="docutils literal notranslate"><span class="pre">arrayEqualityCheck()</span></code>]
+and one CUDA kernel implementation <code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">chronometer()</span></code> uses <code class="docutils literal notranslate"><span class="pre">timezone</span></code> and <code class="docutils literal notranslate"><span class="pre">timeval</span></code> structures and
+<code class="docutils literal notranslate"><span class="pre">gettimeofday()</span></code> function – included by <em><strong>sys/time.h</strong></em>–  to define
+a utility function that allow us measure the wall-clock time between
+any two points in our code.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">gettimeofday()</span></code> function is supported by GCC compilers and
+might not work on Windows. However, there are multiple ways to perform
+the timing task within C/C++. For further information, see
+<a class="reference external" href="https://levelup.gitconnected.com/8-ways-to-measure-execution-time-in-c-c-48634458d0f9">here</a> or
+take a glance at <a class="reference external" href="https://www.amazon.com/Advanced-Linux-Programming-CodeSourcery-LLC/dp/0735710430">Advanced Linux Programming Book</a> (section 8.7 gettimeofday: Wall-Clock Time).</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">dataInitializer()</span></code> function accepts pointers to the location of allocated
+memories for the input arrays (A and B) on the host and size of the arrays.
+The input arrays are then initialized and filled with float-type random
+numbers between zero and one.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">arraySumOnHost()</span></code> function, as its name suggests, is responsible for
+performing an element-by-element summation of the two arrays, A and B, on
+the host and stores the results into array C. The kernel function
+<code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code> works similar to its CPU counterpart, <code class="docutils literal notranslate"><span class="pre">arraySumOnHost()</span></code>
+except in its logistics. Although, <code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code> kernel is written
+for a single thread specified by its thread index variable, <code class="docutils literal notranslate"><span class="pre">idx</span></code>, when
+the kernel is launched with a particular kernel execution configuration
+and thread organization, hundreds or thousands of active threads concurrently
+perform the same summation operation on individual elements of the arrays A
+and B and store the results in array C. This time, the A, B and C vectors are
+allocated on device’s global memory.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">arrayEqualityCheck()</span></code> function performs an element-by-element comparison
+of the resulting vectors returned from <code class="docutils literal notranslate"><span class="pre">arraySumOnHost()</span></code> and
+<code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code> functions on the host side.</p>
+</section>
+<section id="structure-of-the-program">
+<h3>4.2. Structure of the Program<a class="headerlink" href="#structure-of-the-program" title="Permalink to this heading">#</a></h3>
+<p>The next section of our code involves function calls in the <code class="docutils literal notranslate"><span class="pre">main()</span></code> driver
+function. After fetching the name of the program executable from the command
+line and printing it to the screen, CUDA runtime functions are adopted to
+set the device and then print its name. Setting the device index will be
+useful when the system has multiple devices installed. In a miscellaneous
+lesson, we will describe how to choose the best (most powerful) available
+GPU if the host system has multiple GPU accelerator devices installed.</p>
+<p>Summation of arrays on the host side starts by specifying the array sizes
+using the <a class="reference external" href="https://en.cppreference.com/w/c/language/operator_arithmetic">left-shit bitwise operator</a>
+and pointer declarations to be able to point to the memory
+addresses for arrays A and B when we allocate them on the host
+using the <code class="docutils literal notranslate"><span class="pre">malloc()</span></code> function. In order to be able to distinguish between
+pointers that refer to the memory addresses on the host and the device,
+we prepend the prefixes <code class="docutils literal notranslate"><span class="pre">h_</span></code> (for host) or <code class="docutils literal notranslate"><span class="pre">d_</span></code> (for device) to the variable names.
+Each of the arrays <code class="docutils literal notranslate"><span class="pre">h_A</span></code> and <code class="docutils literal notranslate"><span class="pre">h_B</span></code> are then passed to <code class="docutils literal notranslate"><span class="pre">dataInitializer()</span></code> function
+to be filled with random float numbers. After initialization step,
+the <code class="docutils literal notranslate"><span class="pre">arraySumOnHost()</span></code> function sums both arrays A and B together on the host
+and stores the resulting array in another allocated memory address on the
+host pointed to by the <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> variable. We adopted <code class="docutils literal notranslate"><span class="pre">chronometer()</span></code> to time
+the initialization and summations steps and printed those timings to the screen.</p>
+<p>The next part of the code is similar to the what we did for the summation
+of arrays A and B on the host but this time, we adopt CUDA C APIs instead of
+those of C/C++. For example, for memory allocation on the device, we use
+<code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> instead of <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>.</p>
+<p>Remember in the <a class="reference internal" href="#1-basics-of-the-device-memory-management-in-cuda"><span class="xref myst">first section</span></a>
+of this lesson, we mentioned that each CUDA program has a series of typical steps in
+order to perform a specific task. After memory allocation– for arrays <code class="docutils literal notranslate"><span class="pre">d_A</span></code> and
+<code class="docutils literal notranslate"><span class="pre">d_B</span></code>– on the device, we need to initialize them through copying the content of
+the corresponding arrays, <code class="docutils literal notranslate"><span class="pre">h_A</span></code> and <code class="docutils literal notranslate"><span class="pre">h_B</span></code>, from the host to their aforementioned
+counterparts on the device via adopting <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> functions.
+We have just finished the first (out of three) step(s) in a typical CUDA program
+where we transferred data from host to device (HtoD) using <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code>.
+Note that the <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> is synchronous meaning that the flow of execution on
+the host will stop and wait for <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> to finish its job.</p>
+<p>The next step is to execute the kernel <code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code> on the device.
+In order to do that, we need to organize our threads in blocks and blocks in grids
+from the host so that we can access them on the device within the kernel
+as mentioned in the <a class="reference internal" href="#2-thread-hierarchy-in-cuda"><span class="xref myst">previous section</span></a>. Thread
+organization is one of the most important aspects of CUDA programming model that has
+a major impact on the performance of our code. In our intermediate and advanced tutorials,
+we will constantly keep an eye on this factor and try to optimize the performance
+through finding the best possible configuration of threads in blocks and grids through
+a profiling-driven approach. As Eq. \eqref{EQ:THRDORG} suggests, fixing the number
+of threads in each block (<code class="docutils literal notranslate"><span class="pre">numThreadsInBlocks</span></code>) for each block dimension determines
+the number of blocks in the grid for that dimension. Once we have defined the <code class="docutils literal notranslate"><span class="pre">block</span></code>
+and <code class="docutils literal notranslate"><span class="pre">grid</span></code> variables on the host, we pass them to the execution configuration
+<code class="docutils literal notranslate"><span class="pre">&lt;&lt;&lt;grid,</span> <span class="pre">block&gt;&gt;&gt;</span></code> as arguments in order to launch the kernel on the device.
+Compared with synchronous function calls such as <code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> where the host
+has to wait until its execution is completed, the kernel launches are asynchronous
+and the execution flow returns to host right after the kernel is executed.
+Since we intend to measure the execution wall-time for <code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code>
+kernel launch from the host, we need to tell the host to wait for the kernel to complete
+its task. This is done by calling <code class="docutils literal notranslate"><span class="pre">cudaDeviceSynchronize()</span></code> from the host right
+after the kernel launch.</p>
+<p>When the kernel is launched, thousands of threads gain access to data and resources
+on GPU and perform the array summation concurrently. This is the motivation behind
+the concept <strong>Single Instruction Multiple Threads (SIMT)</strong> which NVIDIA has coined for
+this type of architecture.</p>
+<div class="note admonition">
+<p class="admonition-title">Note</p>
+<p>The SIMT architecture is very similar to the <strong>Single Instruction
+Multiple Data (SIMD)</strong> variant in
+<a class="reference external" href="https://en.wikipedia.org/wiki/Flynn%27s_taxonomy"><em>Flynn’s Taxonomy</em></a>. However,
+their main difference is that in SIMD, all elements of an array should be operated
+upon simultaneously, whereas in SIMT architecture, multiple threads in the same group,
+while performing the same instruction, execute the operation independently on their
+own private data.</p>
+</div>
+<p>The result of array summation on GPU is stored in another array <code class="docutils literal notranslate"><span class="pre">d_C</span></code> on
+device’s global memory. The step three of a CUDA program is to transfer
+the resulting data back from device to host (DtoH). Before transferring the data,
+we make sure that there was no errors in the last CUDA runtime call through
+using <a class="reference external" href="https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__ERROR.html#group__CUDART__ERROR_1g3529f94cb530a83a76613616782bd233"><code class="docutils literal notranslate"><span class="pre">cudaGetLastError()</span></code></a>. If there was no errors, we transfer the results back to the host using
+<code class="docutils literal notranslate"><span class="pre">cudaMemcpy()</span></code> and store it in host’s allocated memory pointed to by <code class="docutils literal notranslate"><span class="pre">devicePtr</span></code>
+variable. Now that we have the summation results from CPU and GPU stored on the
+host memory variables, <code class="docutils literal notranslate"><span class="pre">hostPtr</span></code> and <code class="docutils literal notranslate"><span class="pre">devicePtr</span></code>, respectively, we can compare them
+using <code class="docutils literal notranslate"><span class="pre">arrayEqualityCheck()</span></code> function. The final stage of our program performs
+housekeeping by deallocating the memories on both device and host.</p>
+<div class="key admonition">
+<p class="admonition-title">Key Points</p>
+<ul class="simple">
+<li><p>CUDA programming model</p></li>
+<li><p>Device memory management</p></li>
+<li><p>Thread hierarchy</p></li>
+<li><p>Typical operations in a CUDA program</p></li>
+</ul>
+</div>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="02-basic-concepts.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Basic Concepts in CUDA Programming</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="04-gpu-compilation-model.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">CUDA GPU Compilation Model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parallelizing-loops-a-prelude-to-thread-hierarchy">1. Parallelizing Loops: A Prelude to Thread Hierarchy</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#monolithic-kernels">1.1. Monolithic Kernels</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grid-stride-loops">1.2. Grid-Stride Loops</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#thread-hierarchy-in-cuda">2. Thread Hierarchy in CUDA</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basics-of-the-device-memory-management-in-cuda">3. Basics of the Device Memory Management in CUDA</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summation-of-arrays-on-gpus">4. Summation of Arrays on GPUs</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#header-files-and-function-definitions">4.1. Header Files and Function Definitions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#structure-of-the-program">4.2. Structure of the Program</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="_sources/03-cuda-program-model.md.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  
+
+
+
+  
+  
+  
+  
+  
+  
+  
+
+
+<div class="row h-10">
+    <div class="col-2">
+        <a href="https://molssi.org/" target="_blank" title="Go to MolSSI in a new tab">
+            <img src="_static/molssi_main_logo.png" class="logo__image only-light footer_logo" alt="Logo image">
+            <img src="_static/molssi_main_logo_inverted_white.png" class="logo__image only-dark footer_logo" alt="Logo image">
+        </a>
+    </div>
+    <div class="col-8">
+        <p> &copy; Copyright 2019-2023 <a href="https://molssi.org/">The Molecular Sciences Software Institute</a></p>
+        <p>Funded by the National Science Foundation 
+          <a href="https://nsf.gov/awardsearch/showAward?AWD_ID=1547580">OAC-1547580</a> and 
+          <a href="https://www.nsf.gov/awardsearch/showAward?AWD_ID=2136142">CHE-2136142.</a></p>
+ 
+        
+        <p class="sphinx-version">
+        Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+        </p>
+        
+
+        <p class="theme-version">
+        Built with a customized <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.1.
+        </p>
+
+    </div>
+    <div class="col-2">
+        <a href="https://nsf.gov/" target="_blank" title="Go to the NSF in a new tab">
+            <img src="_static/nsf.png" class="footer_logo" alt="The NSF">
+          </a>
+    </div>
+</div></div>
+      
+    </div>
+  
+  
+</div>
+
+  </footer>
+  </body>
+</html>

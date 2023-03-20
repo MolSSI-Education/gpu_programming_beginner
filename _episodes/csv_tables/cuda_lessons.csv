@@ -1,0 +1,32 @@
+﻿Lesson Title,Questions,Objectives
+`Set-Up <setup.html>`_,* How do I set up my computer for these lessons?,
+`Introduction <01-introduction.html>`_,"* What is heterogeneous parallel programming? Where did it come from and how did it evolve?
+* What are the main differences between CPU and GPU architectures and their relation to parallel programming paradigms?
+* What is CUDA? Why do I need to know about it?","* Understanding the fundamentals of heterogeneous parallel programming
+* Learning the basic aspects of GPU architectures and software models for heterogeneous parallel programming
+* An initial overview of CUDA as a programming platform and model"
+`Basic Concepts in CUDA Programming <02-basic-concepts.html>`_,"* How to write, compile and run a basic CUDA program?
+* What is the structure of a CUDA program?
+* How to write and launch a CUDA kernel function?","* Understanding the basics of the CUDA programming model
+* The ability to write, compile and run a basic CUDA program
+* Recognition of similarities between the semantics of C and those of CUDA C"
+`CUDA Programming Model <03-cuda-program-model.html>`_,"* What is thread hierarchy in CUDA?
+* How can threads be organized within blocks and grids?
+* How can the data be transferred between host and device memory?
+* How can we measure the wall-time of An operation in a program?","* Learning about the basics of the device memory management
+* Understanding the concept of thread hierarchy in CUDA programming model
+* Familiarity with the logistics of a typical CUDA program"
+`CUDA GPU Compilation Model <04-gpu-compilation-model.html>`_,"* What is NVCC compiler and Why do we need it?
+* Can multiple GPU and CPU source code files be simultaneously compiled with NVCC?
+* How does NVCC distinguish between the host and device code domains and handle the compilation process?
+* how can runtime errors be handled during a CUDA program execution?","* Understanding the basic mechanism of NVCC compilation phases
+* Learning about multiple source code compilation mode in NVCC compiler
+* Mastering the basics of error handling in a CUDA program using C/C++ wrapper marcos"
+`CUDA Execution Model <05-cuda-execution-model.html>`_,"* What is CUDA execution model?
+* How insights from GPU architecture helps CUDA programmers to write more efficient software?
+* What are streaming multiprocessors and thread warps?
+* What is profiling and why is it important to a programmer?
+* How many profiling tools for CUDA programming are available and which one(s) should I choose?","* Understanding the fundamentals of the CUDA execution model
+* Establishing the importance of knowledge from GPU architecture and its impacts on the efficiency of a CUDA program
+* Learning about the building blocks of GPU architecture: streaming multiprocessors and thread warps
+* Mastering the basics of profiling and becoming proficient in adopting profiling tools in CUDA programming"

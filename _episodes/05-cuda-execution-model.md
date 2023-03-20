@@ -1,34 +1,26 @@
----
-title: "CUDA Execution Model"
-teaching: 35
-exercises: 0
-questions:
-- "What is CUDA execution model?"
-- "How insights from GPU architecture helps CUDA programmers to write more efficient software?"
-- "What are streaming multiprocessors and thread warps?"
-- "What is profiling and why is it important to a programmer?"
-- "How many profiling tools for CUDA programming are available and which one(s) should I choose?"
-objectives:
-- "Understanding the fundamentals of the CUDA execution model"
-- "Establishing the importance of knowledge from GPU architecture and its impacts on the efficiency of a CUDA program"
-- "Learning about the building blocks of GPU architecture: streaming multiprocessors and thread warps"
-- "Mastering the basics of profiling and becoming proficient in adopting profiling tools in CUDA programming"
-keypoints:
-- "CUDA execution model"
-- "Streaming multiprocessors and thread warps"
-- "Profiling tools for CUDA programming"
----
+# CUDA Execution Model
+
+````{admonition} Overview
+:class: overview
+
+Questions:
+* What is CUDA execution model?
+* How insights from GPU architecture helps CUDA programmers to write more efficient software?
+* What are streaming multiprocessors and thread warps?
+* What is profiling and why is it important to a programmer?
+* How many profiling tools for CUDA programming are available and which one(s) should I choose?
+
+Objectives:
+* Understanding the fundamentals of the CUDA execution model
+* Establishing the importance of knowledge from GPU architecture and its impacts on the efficiency of a CUDA program
+* Learning about the building blocks of GPU architecture: streaming multiprocessors and thread warps
+* Mastering the basics of profiling and becoming proficient in adopting profiling tools in CUDA programming
+````
+
 
 <script type="text/javascript" async
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-
-> ## Table of Contents
-> - [1. GPU Architecture](#1-gpu-architecture)
-> - [2. Profiling Tools](#2-profiling-tools)
->   - [2.1. Command-Line NVIDIA Profiler](#21-command-line-nvidia-profiler)
->   - [2.2. NVIDIA Visual Profiler](#22-nvidia-visual-profiler)
-{: .prereq}
 
 ## 1. GPU Architecture
 
@@ -81,12 +73,15 @@ this block on the hardware side resulting in the allocation of resources
 targeted for supporting 96 threads. As such, 16 threads in one of the 
 three warps remain inactive while still consuming (wasting) the allocated resources.
 
-> ## Note:
-> Although from the logical point of view, threads
-> can be organized within 1-, 2- and 3-dimensional blocks, 
-> from hardware perspective, all threads can only exist in a one-dimensional
-> world.
-{: .discussion}
+```{admonition} Note
+:class: note
+
+Although from the logical point of view, threads
+can be organized within 1-, 2- and 3-dimensional blocks, 
+from hardware perspective, all threads can only exist in a one-dimensional
+world.
+
+```
 
 All threads in a warp execute the same instruction on their own private data.
 Therefore, maximum efficiency can be realized if all 32 threads are on
@@ -104,9 +99,11 @@ hardware aspects and CUDA execution model.
 
 Let us look at the main parts of a Fermi SM from a logical perspective
 to be able to gain some insights about the hardware micro-architectures
-in NVDIA GPU devices
+in NVDIA GPU devices.
 
-![Figure 1](../fig/SM.png)
+```{image} ../fig/SM.png
+:align: center
+```
 
 With each architecture release, NVIDIA has attempted to introduce new technological 
 breakthroughs or major improvements over predecessor models. Therefore, although
@@ -154,10 +151,13 @@ The nvprof profiler can be easily customized to provide different contents and w
 of collecting data on various GPU/CPU activities through adopting the
 following [semantics](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#nvprof-overview)
 
-~~~
+````{tab-set-code} 
+
+```{code-block} shell
 $ nvprof [options] [application] [appOptions]
-~~~
-{: .language-bash}
+```
+````
+
 
 Since nvprof can give the time spent on each GPU kernel and CUDA API 
 function calls, we will not need to use the `chronometer()` C-based function.
@@ -165,7 +165,9 @@ Therefore, let us comment out or remove those function
 calls and their corresponding print functions from our ***gpuVectorSum.cu*** 
 source file which should look like the following
 
-~~~
+````{tab-set-code} 
+
+```{code-block} cuda
 /*================================================*/
 /*================ gpuVectorSum.cu ===============*/
 /*================================================*/
@@ -253,21 +255,27 @@ int main(int argc, char **argv) {
 
     return(EXIT_SUCCESS);
 }
-~~~
-{: .language-cuda}
+```
+````
+
 
 After re-compiling our code, prepend the bash running command
 with nvprof as follows
 
-~~~
+````{tab-set-code} 
+
+```{code-block} shell
 $ nvcc gpuVectorSum.cu cCode.c cudaCode.cu -o gpuVectorSum
 $ nvprof ./gpuVectorSum
-~~~
-{: .language-bash}
+```
+````
+
 
 The resulting output will be similar to the following
 
-~~~
+````{tab-set-code} 
+
+```{code-block} output
 Kicking off ./test
 
 ==5906== NVPROF is profiling process 5906, command: ./test
@@ -298,8 +306,9 @@ Arrays are equal.
                     0.00%  3.5500us         2  1.7750us     550ns  3.0000us  cuDeviceGet
                     0.00%  1.5830us         1  1.5830us  1.5830us  1.5830us  cuDeviceGetUuid
                     0.00%     401ns         1     401ns     401ns     401ns  cudaGetLastError
-~~~
-{: .output}
+```
+````
+
 
 The output is a mixture of C-based `printf()` function results and 
 what nvprof has printed. In this output, `==5906==`, shows the process 
@@ -329,12 +338,16 @@ The *API calls* part of the *Profiling results* section of the nvprof output
 focuses on CUDA (runtime and driver) API calls which allows us to have a 
 fine-grid look at the events happening behind the scene.
 
-> ## Note:
-> The profiling results of nvprof are [directed](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#redirecting-output)
-> to `stderr` by default. You can use the  `--log-file <fileName>` option 
-> within the nvprof command line to save the output in a file named 
-> `<fileName>`.
-{: .discussion}
+
+```{admonition} Note
+:class: note
+
+The profiling results of nvprof are [directed](https://docs.nvidia.com/cuda/profiler-users-guide/index.html#redirecting-output)
+to `stderr` by default. You can use the  `--log-file <fileName>` option 
+within the nvprof command line to save the output in a file named 
+`<fileName>`.
+
+```
 
 ### 2.2. NVIDIA Visual Profiler
 
@@ -350,7 +363,9 @@ The main graphical user interface for nvvp is illustrated in the following
 figure where the main screen is split into separate panels and organized 
 as *views* 
 
-![Figure 2](../fig/nvvp.png)
+```{image} ../fig/nvvp.png
+:align: center
+```
 
 The main section at the top of our screen is the *timeline view* detailing
 the GPU and CPU activities in your program as a function of execution time.
@@ -382,6 +397,14 @@ to the [CUDA Toolkit documentation](https://docs.nvidia.com/cuda/profiler-users-
 for further details about other view types and different aspects of profiling
 in nvvp.
 
-![Figure 3](../fig/dependencyAnalysis.png)
+```{image} ../fig/dependencyAnalysis.png
+:align: center
+```
 
-{% include links.md %}
+````{admonition} Key Points
+:class: key
+
+- CUDA execution model
+- Streaming multiprocessors and thread warps
+- Profiling tools for CUDA programming
+````

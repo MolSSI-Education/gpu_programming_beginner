@@ -1,37 +1,24 @@
----
-title: "CUDA Programming Model"
-teaching: 60
-exercises: 0
-questions:
-- "What is thread hierarchy in CUDA?"
-- "How can threads be organized within blocks and grids?"
-- "How can the data be transferred between host and device memory?"
-- "How can we measure the wall-time of an operation in a program?"
-objectives:
-- "Learning about the basics of the device memory management"
-- "Understanding the concept of thread hierarchy in CUDA programming model"
-- "Familiarity with the logistics of a typical CUDA program"
-keypoints:
-- "CUDA programming model"
-- "Device memory management"
-- "Thread hierarchy"
-- "Typical operations in a CUDA program"
----
+# CUDA Programming Model
+
+````{admonition} Overview
+:class: overview
+
+Questions:
+- What is thread hierarchy in CUDA?
+- How can threads be organized within blocks and grids?
+- How can the data be transferred between host and device memory?
+- How can we measure the wall-time of an operation in a program?
+
+Objectives:
+- Learning about the basics of the device memory management
+- Understanding the concept of thread hierarchy in CUDA programming model
+- Familiarity with the logistics of a typical CUDA program
+````
+
 
 <script type="text/javascript" async
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-
-> ## Table of Contents
-> - [1. Parallelizing Loops: A Prelude to Thread Hierarchy](#1-parallelizing-loops-a-prelude-to-thread-hierarchy)
->   - [1.1. Monolithic Kernels](#11-monolithic-kernels)
->   - [1.2. Grid-Stride Loops](#12-grid-stride-loops)
-> - [2. Thread Hierarchy in CUDA](#2-thread-hierarchy-in-cuda)
-> - [3. Basics of the Device Memory Management in CUDA](#3-basics-of-the-device-memory-management-in-cuda)
-> - [4. Summation of Arrays on GPUs](#4-summation-of-arrays-on-gpus)
->   - [4.1. Header Files and Function Definitions](#41-header-files-and-function-definitions)
->   - [4.2. Structure of the Program](#42-structure-of-the-program)
-{: .prereq}
 
 Our [Hello World example]({{site.baseurl}}{% link _episodes/02-basic-concepts.md %}#1-writing-our-first-cuda-program)
 from previous lesson lacks two important aspects of a CUDA program that are crucial
@@ -48,7 +35,9 @@ a simple example to show its potential impact and usefulness in CUDA programming
 parallelizing loops. The following code implements and calls `cpuPrinter()` function to
 print the loop indices on the host.
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -65,20 +54,26 @@ int main(int argc, char **argv) {
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 copy the proceeding code block into a text file save it as **cpu_printer.cu**.
 Then, open a terminal and compile and run the program using the following commands
 
-```
+````{tab-set-code} 
+
+```{code-block} shell
 $ nvcc cpu_printer.cu -o cpu_printer
 $ ./cpu_printer
 ```
-{: .language-bash}
+````
+
 
 Running these commands generates the following output
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 CPU Prints Idx: 0
 CPU Prints Idx: 1
 CPU Prints Idx: 2
@@ -88,7 +83,8 @@ CPU Prints Idx: 5
 CPU Prints Idx: 6
 CPU Prints Idx: 7
 ```
-{: .output}
+````
+
 
 In the aforementioned code block, we fixed the loop iteration number (*N=8*) in the preprocessor statement
 and assumed that it is equal to the number of available threads. In the previous lesson, we demonstrated
@@ -102,7 +98,9 @@ one iteration), and (ii) launch the kernel with a total number of threads equal 
 iterations. Let us call our refactored kernel `gpuPrinter<<<>>>()` and store the modified code in the
 **gpu_printer_sb.cu** script. The refactored code should look like the following
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -130,19 +128,25 @@ int main(int argc, char **argv) {
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 Compiling and running this code
 
-```
+````{tab-set-code} 
+
+```{code-block} shell
 $ nvcc gpu_printer_sb.cu -o gpu_printer_sb
 $ ./gpu_printer_sb
 ```
-{: .language-bash}
+````
+
 
 gives us the desired result
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 CPU Prints Idx: 0
 CPU Prints Idx: 1
 CPU Prints Idx: 2
@@ -161,7 +165,8 @@ GPU Prints Idx: 5
 GPU Prints Idx: 6
 GPU Prints Idx: 7
 ```
-{: .output}
+````
+
 
 Pay attention to the two arguments in the execution configuration in the kernel launch:
 number of blocks in each grid and number of threads in each block, respectively. If
@@ -175,15 +180,19 @@ which is 1024. As such, one must resort to distributing the threads over multipl
 them in the execution configuration in order to be able to match the number of loop iterations
 by the number of available threads.
 
-> ## Note:
-> All thread blocks have equal number of threads.
-{: .discussion}
+```{admonition} Note
+:class: note
+
+All thread blocks have equal number of threads.
+```
 
 Let us continue with our example and for the time being and keep the same number of loop iterations
 but distribute the threads among multiple blocks. Cope and paste the following code block in an
 empty text file and save it as **gpu_printer_mb_local.cu**.
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -211,11 +220,14 @@ int main(int argc, char **argv) {
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 After compilation and execution, we get
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 CPU Prints Idx: 0
 CPU Prints Idx: 1
 CPU Prints Idx: 2
@@ -234,19 +246,25 @@ GPU Prints Idx: 1
 GPU Prints Idx: 2
 GPU Prints Idx: 3
 ```
-{: .output}
+````
+
 
 The output illustrates that the local thread indices (`threadIdx.x`) on the GPU restart
 to zero going form one thread block to the next. In the schematics shown below, the thread and block
 indexing patterns for each grid of block is demonstrated for a case where 15 threads are equally
 distributed among three blocks.
 
-![Figure 2](../fig/1D-block.png)
+```{image} ../fig/1D-block.png
+:align: center
+```
 
-> ## Note:
-> Each block has a unique zero-based index in a grid and each thread has a unique zero-based
-> index within each block.
-{: .discussion}
+```{admonition} Note
+:class: note
+
+Each block has a unique zero-based index in a grid and each thread has a unique zero-based index within each block.
+
+```
+
 
 In order to reproduce the same set of indices printed by the CPU function, we need to
 translate the local thread indices to their global variant. As such, we use the following
@@ -261,7 +279,9 @@ to their global variant. After copying and pasting the following code block in a
 file, save it as **gpu_printer_mb_global.cu**.
 
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -292,12 +312,15 @@ int main(int argc, char **argv) {
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 Compiling and running the aforementioned script yields the expected result
 provided below
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 CPU Prints Idx: 0
 CPU Prints Idx: 1
 CPU Prints Idx: 2
@@ -316,7 +339,8 @@ GPU Prints Idx: 1
 GPU Prints Idx: 2
 GPU Prints Idx: 3
 ```
-{: .output}
+````
+
 
 The output indicates although the same set of indices has been printed for both host function
 and device kernel, the order of indices is not preserved for the latter. The reason is that
@@ -342,7 +366,9 @@ the unallocated memory addresses, we add an `if(numThreads < N)` conditional sta
 kernel implementation. Making the aforementioned change in our last code and storing it in a
 script named **gpu_printer_monolithic.cu**, we should have
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -372,11 +398,14 @@ int main(int argc, char **argv) {
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 After compiling and running the code above, we get
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 CPU Prints Idx: 0
 CPU Prints Idx: 1
 CPU Prints Idx: 2
@@ -395,7 +424,8 @@ GPU Prints Idx: 5
 GPU Prints Idx: 6
 GPU Prints Idx: 7
 ```
-{: .output}
+````
+
 
 It might be interesting to mention that the name monolithic kernel is a reminder of the adopted
 conditional statement and our initial assumption that the total number of available threads is
@@ -416,7 +446,9 @@ operates on element 25, thread 26 (1 + 25) on element 26 ... thread 49 (24 + 25)
 Let us get back to the previous example and see how it changes in this scenario. Copy the following
 code block and save it in a script named **gpu_printer_grid_stride_loop.cu**.
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -447,11 +479,14 @@ int main(int argc, char **argv) {
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 After compilation and execution, once again we get the desired output
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 CPU Prints Idx: 0
 CPU Prints Idx: 1
 CPU Prints Idx: 2
@@ -470,7 +505,8 @@ GPU Prints Idx: 5
 GPU Prints Idx: 6
 GPU Prints Idx: 7
 ```
-{: .output}
+````
+
 
 Note that in this example, we have adopted very small sizes for our data structure (8) and threads (2)
 for simplicity and clarity of demonstration.
@@ -487,7 +523,9 @@ CUDA exposes a two-level thread hierarchy, consisting of **block of threads** an
 **grids of blocks**, to the programmer in order to allow for thread organization
 on GPU devices.
 
-![Figure 3](../fig/grid_blocks.png)
+```{image} ../fig/grid_blocks.png
+:align: center
+```
 
 As figure demonstrates, each grid is often constructed from many thread blocks.
 Each block is a group of threads invoked by kernel to perform a specific task
@@ -524,7 +562,9 @@ for Cartesian components.
 Let's write a simple kernel that shows how blocks of threads and grids of blocks can be
 organized and identified in a CUDA program:
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 #include <cuda_runtime.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -576,11 +616,14 @@ int main(int argc, char **argv)
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 Running this code will generate the following output:
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 Printing from the host!
 [grid.x, grid.y, grid.z]:    [3, 1, 1]
 [block.x, block.y, block.z]: [2, 1, 1]
@@ -593,7 +636,8 @@ threadIdx:(1, 0, 0),             blockIdx:(2, 0, 0),             blockDim:(2, 1,
 threadIdx:(0, 0, 0),             blockIdx:(1, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
 threadIdx:(1, 0, 0),             blockIdx:(1, 0, 0),             blockDim:(2, 1, 1),             gridDim:(3, 1, 1)
 ```
-{: .output}
+````
+
 
 Now, let's get back to our code and analyze it step by step
 in order to understand the mechanistic details of thread
@@ -620,11 +664,14 @@ different sets of grid and block identification variables:
 (i) user-defined variables of type `dim3` that are defined and visible
 on the host side, only,
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 dim3 block(numBlocks);
 dim3 grid((numArray + block.x - 1) / block.x);
 ```
-{: .language-cuda}
+````
+
 
 and (ii) the built-in thread, block and grid identification variables of
 the type `uint3` which will be visible on the device and therefore accessible
@@ -645,25 +692,33 @@ $$
 In the next part of our code, we then access the block and grid dimension variables
 within the main function to print them to the screen from the host.
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 printf("[grid.x, grid.y, grid.z]:    [%d, %d, %d]\n", grid.x, grid.y, grid.z);
 printf("[block.x, block.y, block.z]: [%d, %d, %d]\n\n", block.x, block.y, block.z);
 ```
-{: .language-cuda}
+````
+
 
 After that, the grid and block objects can be passed to the kernel execution
 configuration as arguments:
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 printThreadID<<<grid, block>>>();
 ```
-{: .language-cuda}
+````
+
 
 The kernel execution triggers the initialization of the built-in thread,
 block and grid identification variables of the type `uint3` by the CUDA runtime
 which will be visible and accessible to the kernel functions on the device side.
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 __global__ void printThreadID() {
     /* For each thread, the kernel prints
      * the threadIdx, blockIdx, blockDim,
@@ -679,7 +734,8 @@ __global__ void printThreadID() {
             gridDim.x, gridDim.y, gridDim.z);
 }
 ```
-{: .language-cuda}
+````
+
 
 When each active thread runs the kernel, it has access to the aforementioned pre-initialized
 identification indices. Therefore, the kernel function `printThreadID()` can print the thread
@@ -721,28 +777,37 @@ and syntax extensions making it easier for the programmer to manage memory on GP
 NVIDIA adopts **lowerCamelCase** (Java style) naming style for its CUDA C/C++ extension APIs.
 Here, the `cudaMalloc()` function with the following syntax
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 __host__ __device__ cudaError_t cudaMalloc(void** devPtr, size_t size)
 ```
-{: .language-cuda}
+````
+
 
 allocates `size` bytes of linear memory on the device pointed to by the `devPtr` double-pointer
 variable. As mentioned previously, the `__host__` and `__device__` qualifiers can be used
 together should the kernel be compiled for both host and device.
 
-> ## Note:
-> All CUDA function APIs (except kernel launches) return an error value of 
-> [enumerated type](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g3f51e3575c2178246db0a94a430e0038),
-> [`cudaError_t`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1gf599e5b8b829ce7db0f5216928f6ecb6).
-{: .discussion}
+```{admonition} Note
+:class: note
+
+All CUDA function APIs (except kernel launches) return an error value of 
+[enumerated type](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g3f51e3575c2178246db0a94a430e0038),
+[`cudaError_t`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1gf599e5b8b829ce7db0f5216928f6ecb6).
+
+```
 
 With the memory being allocated on the device, the `cudaMemcpy()` function, with
 the following signature,
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 __host__ cudaError_t cudaMemcpy(void* dst, const void* src, size_t count, cudaMemcpyKind kind)
 ```
-{: .language-cuda}
+````
+
 
 can be adopted to transfer `count` bytes of data from source memory, pointed to by `src`
 pointer, to the destination memory address, pointed to by `dst`. The direction of data
@@ -761,18 +826,23 @@ transfer direction is automatically chosen based upon the pointer values `scr` a
 Note that `cudaMemcpyDefault` should only be adopted when [*unified virtual
 addressing (UVA)*](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwiJ9rD787ruAhXkQ98KHVYMAI0QFjAAegQIARAC&url=https%3A%2F%2Fdeveloper.download.nvidia.com%2FCUDA%2Ftraining%2Fcuda_webinars_GPUDirect_uva.pdf&usg=AOvVaw0h8XB32gYKtSmfEwEaFcbQ) is supported.
 
-> ## Note:
-> Most kernel launches we consider in this tutorial are *asynchronous* in their behavior in which
-> case the control flow is immediately returned to the host after kernel execution. However,
-> some function calls, such as `cudaMemcpy()`, are *synchronous*-- the host application stops until
-> the function completes its task.
-{: .discussion}
+```{admonition} Note
+:class: note
+
+Most kernel launches we consider in this tutorial are *asynchronous* in their behavior in which
+case the control flow is immediately returned to the host after kernel execution. However,
+some function calls, such as `cudaMemcpy()`, are *synchronous*-- the host application stops until
+the function completes its task.
+
+```
 
 ## 4. Summation of Arrays on GPUs
 
 Copy the following code into an empty text file, rename it to ***gpuVectorSum.cu*** and save it.
 
-```
+````{tab-set-code} 
+
+```{code-block} cuda
 /*================================================*/
 /*================ gpuVectorSum.cu ===============*/
 /*================================================*/
@@ -929,19 +999,25 @@ int main(int argc, char **argv) {
     return(EXIT_SUCCESS);
 }
 ```
-{: .language-cuda}
+````
+
 
 After saving the code, it can be compiled and run using the following two commands
 
-```
+````{tab-set-code} 
+
+```{code-block} shell
 $ nvcc gpuVectorSum.cu -o gpuVectorSum
 $ ./gpuVectorSum
 ```
-{: .language-bash}
+````
+
 
 with the output similar to the following
 
-```
+````{tab-set-code} 
+
+```{code-block} output
 Kicking off ./test
 
 GPU device "GeForce GTX 1650" with index "0" is set!
@@ -954,7 +1030,8 @@ Elapsed time for arraySumOnDevice <<< 16384, 1024 >>>: 0.001885 second(s)
 
 Arrays are equal.
 ```
-{: .output}
+````
+
 
 In this case, wall-time measurements indicate that the `arraySumOnDevice()`
 executes more than ten times faster than `arraySumOnHost()`. Since the
@@ -985,13 +1062,17 @@ The `chronometer()` uses `timezone` and `timeval` structures and
 a utility function that allow us measure the wall-clock time between
 any two points in our code.
 
-> ## Note:
-> The `gettimeofday()` function is supported by GCC compilers and
-> might not work on Windows. However, there are multiple ways to perform
-> the timing task within C/C++. For further information, see
-> [here](https://levelup.gitconnected.com/8-ways-to-measure-execution-time-in-c-c-48634458d0f9) or
-> take a glance at [Advanced Linux Programming Book](https://www.amazon.com/Advanced-Linux-Programming-CodeSourcery-LLC/dp/0735710430) (section 8.7 gettimeofday: Wall-Clock Time).
-{: .discussion}
+```{admonition} Note
+:class: note
+
+The `gettimeofday()` function is supported by GCC compilers and
+might not work on Windows. However, there are multiple ways to perform
+the timing task within C/C++. For further information, see
+[here](https://levelup.gitconnected.com/8-ways-to-measure-execution-time-in-c-c-48634458d0f9) or
+take a glance at [Advanced Linux Programming Book](https://www.amazon.com/Advanced-Linux-Programming-CodeSourcery-LLC/dp/0735710430) (section 8.7 gettimeofday: Wall-Clock Time).
+
+```
+
 
 The `dataInitializer()` function accepts pointers to the location of allocated
 memories for the input arrays (A and B) on the host and size of the arrays.
@@ -1080,15 +1161,19 @@ on GPU and perform the array summation concurrently. This is the motivation behi
 the concept **Single Instruction Multiple Threads (SIMT)** which NVIDIA has coined for
 this type of architecture. 
 
-> ## Note:
-> The SIMT architecture is very similar to the **Single Instruction
-> Multiple Data (SIMD)** variant in 
-> [*Flynn's Taxonomy*](https://en.wikipedia.org/wiki/Flynn%27s_taxonomy). However, 
-> their main difference is that in SIMD, all elements of an array should be operated 
-> upon simultaneously, whereas in SIMT architecture, multiple threads in the same group, 
-> while performing the same instruction, execute the operation independently on their 
-> own private data.
-{: .discussion}
+
+```{admonition} Note
+:class: note
+
+The SIMT architecture is very similar to the **Single Instruction
+Multiple Data (SIMD)** variant in 
+[*Flynn's Taxonomy*](https://en.wikipedia.org/wiki/Flynn%27s_taxonomy). However, 
+their main difference is that in SIMD, all elements of an array should be operated 
+upon simultaneously, whereas in SIMT architecture, multiple threads in the same group, 
+while performing the same instruction, execute the operation independently on their 
+own private data.
+
+```
 
 The result of array summation on GPU is stored in another array `d_C` on
 device's global memory. The step three of a CUDA program is to transfer
@@ -1101,4 +1186,11 @@ host memory variables, `hostPtr` and `devicePtr`, respectively, we can compare t
 using `arrayEqualityCheck()` function. The final stage of our program performs
 housekeeping by deallocating the memories on both device and host. 
 
-{% include links.md %}
+````{admonition} Key Points
+:class: key
+
+- CUDA programming model
+- Device memory management
+- Thread hierarchy
+- Typical operations in a CUDA program
+````

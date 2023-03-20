@@ -1,26 +1,18 @@
----
-title: "Introduction"
-teaching: 30
-exercises: 0
-questions:
-- "What is heterogeneous parallel programming? Where did it come from and how did it evolve?"
-- "What are the main differences between CPU and GPU architectures and their relation to parallel programming paradigms?"
-- "What is CUDA? Why do I need to know about it?"
-objectives:
-- "Understanding the fundamentals of heterogeneous parallel programming"
-- "Learning the basic aspects of GPU architectures and software models for heterogeneous parallel programming"
-- "An initial overview of CUDA as a programming platform and model"
-keypoints:
-- "Heterogeneous parallel programming"
-- "Basic aspects of GPU architecture"
-- "CUDA as a platform and programming model"
----
+# Introduction
 
-> ## Table of Contents
-> - [1. Background](#1-background)
-> - [2. Parallel Programming Paradigms](#2-parallel-programming-paradigms)
-> - [3. CUDA: A Platform for Heterogeneous Parallel Programming](#3-cuda-a-platform-for-heterogeneous-parallel-programming)
-{: .prereq}
+````{admonition} Overview
+:class: overview
+
+Questions:
+- What is heterogeneous parallel programming? Where did it come from and how did it evolve?
+- What are the main differences between CPU and GPU architectures and their relation to parallel programming paradigms?
+- What is CUDA? Why do I need to know about it?
+
+Objectives:
+- Understanding the fundamentals of heterogeneous parallel programming
+- Learning the basic aspects of GPU architectures and software models for heterogeneous parallel programming
+- An initial overview of CUDA as a programming platform and model
+````
 
 ## 1. Background
 
@@ -146,3 +138,10 @@ visual and command-line variants of profiling tools for performance analysis, an
 
 {% include links.md %}
 
+````{admonition} Key Points
+:class: key
+
+- Heterogeneous parallel programming
+- Basic aspects of GPU architecture
+- CUDA as a platform and programming model
+````

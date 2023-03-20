@@ -20,7 +20,7 @@ Objectives:
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
-Our [Hello World example]({{site.baseurl}}{% link _episodes/02-basic-concepts.md %}#1-writing-our-first-cuda-program)
+Our {ref}`Hello World <02-basic-concepts:1. Writing Our First CUDA Program>`
 from previous lesson lacks two important aspects of a CUDA program that are crucial
 for CUDA programmers: thread hierarchy and memory management. In the next few examples,
 we will illustrate how threads can be organized within blocks of threads and grids of
@@ -1124,7 +1124,7 @@ of arrays A and B on the host but this time, we adopt CUDA C APIs instead of
 those of C/C++. For example, for memory allocation on the device, we use
 `cudaMalloc()` instead of `malloc()`.
 
-Remember in the [first section](#1-basics-of-the-device-memory-management-in-cuda)
+Remember in the {ref}`first section <03-cuda-program-model:3. Basics of the Device Memory Management in CUDA>`
 of this lesson, we mentioned that each CUDA program has a series of typical steps in
 order to perform a specific task. After memory allocation-- for arrays `d_A` and
 `d_B`-- on the device, we need to initialize them through copying the content of
@@ -1138,7 +1138,7 @@ the host will stop and wait for `cudaMemcpy()` to finish its job.
 The next step is to execute the kernel `arraySumOnDevice()` on the device.
 In order to do that, we need to organize our threads in blocks and blocks in grids
 from the host so that we can access them on the device within the kernel 
-as mentioned in the [previous section](#2-thread-hierarchy-in-cuda). Thread 
+as mentioned in the {ref}`previous section <03-cuda-program-model:2. Thread Hierarchy in CUDA>`. Thread 
 organization is one of the most important aspects of CUDA programming model that has
 a major impact on the performance of our code. In our intermediate and advanced tutorials,
 we will constantly keep an eye on this factor and try to optimize the performance

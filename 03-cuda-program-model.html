@@ -61,6 +61,7 @@
                 gtag('config', 'G-FHKVGE8HKZ');
             </script>
     <script>DOCUMENTATION_OPTIONS.pagename = '03-cuda-program-model';</script>
+    <link rel="shortcut icon" href="_static/molssi_square.png"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CUDA GPU Compilation Model" href="04-gpu-compilation-model.html" />
@@ -493,7 +494,7 @@ document.write(`
 <script type="text/javascript" async
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
-<p>Our [Hello World example]({{site.baseurl}}{% link _episodes/02-basic-concepts.md %}#1-writing-our-first-cuda-program)
+<p>Our <a class="reference internal" href="02-basic-concepts.html#writing-our-first-cuda-program"><span class="std std-ref">Hello World</span></a>
 from previous lesson lacks two important aspects of a CUDA program that are crucial
 for CUDA programmers: thread hierarchy and memory management. In the next few examples,
 we will illustrate how threads can be organized within blocks of threads and grids of
@@ -1564,7 +1565,7 @@ the initialization and summations steps and printed those timings to the screen.
 of arrays A and B on the host but this time, we adopt CUDA C APIs instead of
 those of C/C++. For example, for memory allocation on the device, we use
 <code class="docutils literal notranslate"><span class="pre">cudaMalloc()</span></code> instead of <code class="docutils literal notranslate"><span class="pre">malloc()</span></code>.</p>
-<p>Remember in the <a class="reference internal" href="#1-basics-of-the-device-memory-management-in-cuda"><span class="xref myst">first section</span></a>
+<p>Remember in the <a class="reference internal" href="#basics-of-the-device-memory-management-in-cuda"><span class="std std-ref">first section</span></a>
 of this lesson, we mentioned that each CUDA program has a series of typical steps in
 order to perform a specific task. After memory allocation– for arrays <code class="docutils literal notranslate"><span class="pre">d_A</span></code> and
 <code class="docutils literal notranslate"><span class="pre">d_B</span></code>– on the device, we need to initialize them through copying the content of
@@ -1577,7 +1578,7 @@ the host will stop and wait for <code class="docutils literal notranslate"><span
 <p>The next step is to execute the kernel <code class="docutils literal notranslate"><span class="pre">arraySumOnDevice()</span></code> on the device.
 In order to do that, we need to organize our threads in blocks and blocks in grids
 from the host so that we can access them on the device within the kernel
-as mentioned in the <a class="reference internal" href="#2-thread-hierarchy-in-cuda"><span class="xref myst">previous section</span></a>. Thread
+as mentioned in the <a class="reference internal" href="#thread-hierarchy-in-cuda"><span class="std std-ref">previous section</span></a>. Thread
 organization is one of the most important aspects of CUDA programming model that has
 a major impact on the performance of our code. In our intermediate and advanced tutorials,
 we will constantly keep an eye on this factor and try to optimize the performance
